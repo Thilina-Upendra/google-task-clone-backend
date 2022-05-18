@@ -14,10 +14,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 @WebListener
 public class LogInitializer implements ServletContextListener {
@@ -27,6 +24,8 @@ public class LogInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+
+        Logger.getLogger("lk.ijse.dep8.tasks").addHandler(new ConsoleHandler());
 
         try {
             final Properties prop = new Properties();
