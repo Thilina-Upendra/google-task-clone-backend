@@ -62,7 +62,7 @@
     </dependencies>
 
     <build>
-        <finalName>task</finalName>
+        <finalName>tasks</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
