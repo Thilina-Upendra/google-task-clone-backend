@@ -25,7 +25,6 @@ public class DBInitializer implements ServletContextListener {
     @Resource(name = "java:comp/env/jdbc/pool")
     private DataSource pool;
 
-    final String[] tableList = {"user", "task_list", "task", "sub_task"};
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         final String[] tables = {"task", "task_list", "user", "sub_task"};
