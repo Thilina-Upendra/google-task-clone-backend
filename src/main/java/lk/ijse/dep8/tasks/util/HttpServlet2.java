@@ -33,9 +33,20 @@ public class HttpServlet2 extends HttpServlet {
 
             res.setContentType("application/json");
 
-            HttpResponseErrorMessage errorMsg = new HttpResponseErrorMessage(new Date().getTime(),
-                    500, "Internal Server Error",
-                    t.getLocalizedMessage(), t.getMessage(), req.getRequestURI());
+            HttpResponseErrorMessage errorMsg = null;
+            if (t instanceof ResponseStatusException){
+                ResponseStatusException rse = (ResponseStatusException) t;
+                res.setStatus(rse.getStatus());
+                errorMsg = new HttpResponseErrorMessage(new Date().getTime(),
+                        rse.getStatus(), "Internal Server Error",
+                        sw.toString(), t.getMessage(), req.getRequestURI());
+            }else{
+                errorMsg = new HttpResponseErrorMessage(new Date().getTime(),
+                        500, "Internal Server Error",
+                        sw.toString(), t.getMessage(), req.getRequestURI());
+            }
+
+
             Jsonb jsonb = JsonbBuilder.create();
             jsonb.toJson(errorMsg, res.getWriter());
         }
