@@ -44,7 +44,7 @@ public class DBInitializer implements ServletContextListener {
             Arrays.sort(tables);
             if (!Arrays.equals(tables, tableList.toArray())) {
 
-                InputStream is = this.getClass().getResourceAsStream("/db-script.sql");
+                InputStream is = this.getClass().getResourceAsStream("/dbscript.sql");
                 byte[] bytes = new byte[is.available()];
                 is.read(bytes);
                 String sqlScript = new String(bytes);
