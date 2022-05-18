@@ -31,7 +31,7 @@ public class LogInitializer implements ServletContextListener {
             final Properties prop = new Properties();
             prop.load(this.getClass().getResourceAsStream("/application.properties"));
 
-            String profile = (String) prop.getOrDefault("app.profile.active", "dev");
+            String profile = (String) prop.getOrDefault("app.profiles.active", "dev");
             String logDir = (String) prop.getOrDefault("app.logging.path", "/var/logs");
 
             if(!(profile.equals("dev")||profile.equals("prod"))){
@@ -39,6 +39,7 @@ public class LogInitializer implements ServletContextListener {
                 profile = "dev";
             }
 
+            System.setProperty("app.profiles.active", profile);
             if(profile.equals("dev")){
                 Logger.getLogger("lk.ijse.dep8.tasks").setLevel(Level.FINE);
             }else{
