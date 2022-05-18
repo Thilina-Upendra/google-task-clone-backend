@@ -1,9 +1,6 @@
-package lk.ijse.dep8.tasks.listener;
-
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+package lk.ijse.dep8.tasks;
 
 import javax.servlet.*;
-import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +20,9 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 @WebListener
-public class WebAppContext implements ServletContextListener {
+public class LogInitializer implements ServletContextListener {
 
-    private Logger logger = Logger.getLogger(WebAppContext.class.getName());
+    private Logger logger = Logger.getLogger(LogInitializer.class.getName());
     FileHandler fileHandler;
 
     @Override
