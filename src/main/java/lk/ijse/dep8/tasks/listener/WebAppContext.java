@@ -44,9 +44,9 @@ public class WebAppContext implements ServletContextListener {
             }
 
             if(profile.equals("dev")){
-                Logger.getLogger("").setLevel(Level.FINE);
+                Logger.getLogger("lk.ijse.dep8.tasks").setLevel(Level.FINE);
             }else{
-                Logger.getLogger("").setLevel(Level.INFO);
+                Logger.getLogger("lk.ijse.dep8.tasks").setLevel(Level.INFO);
             }
 
             Path logDirPath = Paths.get(logDir);
@@ -63,7 +63,7 @@ public class WebAppContext implements ServletContextListener {
 
             final String path = logDirPath.toAbsolutePath().toString();
             installFileHandler(getPath(path));
-
+            Logger.getLogger("lk.ijse.dep8.tasks").setUseParentHandlers(false);
 
 
             /*Create CRON JOBS*/
@@ -86,12 +86,12 @@ public class WebAppContext implements ServletContextListener {
         /*Story of the */
         if(fileHandler != null){
             fileHandler.close();
-            Logger.getLogger("").removeHandler(fileHandler);
+            Logger.getLogger("lk.ijse.dep8.tasks").removeHandler(fileHandler);
             try {
                 fileHandler = new FileHandler(path, 2 * 1024 * 1024, 20, true);
                 fileHandler.setFormatter(new SimpleFormatter());
                 fileHandler.setLevel(Logger.getLogger("").getLevel());
-                Logger.getLogger("").addHandler(fileHandler);
+                Logger.getLogger("lk.ijse.dep8.tasks").addHandler(fileHandler);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, e.getMessage(), e);
             }
