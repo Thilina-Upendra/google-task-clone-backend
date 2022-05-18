@@ -1,4 +1,4 @@
-package lk.ijse.dep8.tasks;
+package lk.ijse.dep8.tasks.listener;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContextEvent;
@@ -7,8 +7,6 @@ import javax.servlet.annotation.WebListener;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
