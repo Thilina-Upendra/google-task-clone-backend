@@ -200,4 +200,9 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, e.getMessage(), e);
         }
     }
+
+    @Override
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
+
+    }
 }
