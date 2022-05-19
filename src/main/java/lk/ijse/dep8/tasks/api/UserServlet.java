@@ -1,6 +1,9 @@
 package lk.ijse.dep8.tasks.api;
 
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jdk.nashorn.internal.ir.CallNode;
+import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.listener.DBInitializer;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
@@ -63,11 +66,19 @@ public class UserServlet extends HttpServlet2 {
         try  {
 
             connection = pool.getConnection();
+
+            PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE email = ?");
+            stm.setString(1, email);
+            if (stm.executeQuery().next()){
+                throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
+            }
+
+
             connection.setAutoCommit(false);
 
 
             String id = UUID.randomUUID().toString();
-            PreparedStatement stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
+            stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
             stm.setString(1, id);
             stm.setString(2, email);
             stm.setString(3, password);
@@ -97,12 +108,21 @@ public class UserServlet extends HttpServlet2 {
             }
 
             connection.commit();
+
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.setContentType("application/json");
+            UserDTO userDTO = new UserDTO(id, name, email, password, pictureUrl);
+            Jsonb jsonb = JsonbBuilder.create();
+            jsonb.toJson(userDTO, response.getWriter());
+
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to register the user");
         } finally {
             try {
-                connection.rollback();
-                connection.setAutoCommit(true);
+                if (!connection.getAutoCommit()){
+                    connection.rollback();
+                    connection.setAutoCommit(true);
+                }
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();

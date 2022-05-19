@@ -1,5 +1,7 @@
 package lk.ijse.dep8.tasks.dto;
 
+import jakarta.json.bind.annotation.JsonbTransient;
+
 import java.io.Serializable;
 
 public class UserDTO implements Serializable {
@@ -48,6 +50,7 @@ public class UserDTO implements Serializable {
         return password;
     }
 
+    @JsonbTransient
     public void setPassword(String password) {
         this.password = password;
     }
