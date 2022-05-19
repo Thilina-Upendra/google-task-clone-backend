@@ -84,6 +84,7 @@ public class UserServlet extends HttpServlet2 {
             }
             String appLocation = getServletContext().getRealPath("/");
             Path path = Paths.get(appLocation, "uploads");
+
             if (Files.notExists(path)) {
                 Files.createDirectory(path);
             }
@@ -96,7 +97,6 @@ public class UserServlet extends HttpServlet2 {
             }
 
             connection.commit();
-
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to register the user");
         } finally {

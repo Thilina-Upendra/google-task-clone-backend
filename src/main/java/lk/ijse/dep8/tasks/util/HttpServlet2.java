@@ -47,6 +47,7 @@ public class HttpServlet2 extends HttpServlet {
                         rse.getStatus(),
                         sw.toString(), t.getMessage(), req.getRequestURI());
             }else{
+                res.setStatus(500);
                 errorMsg = new HttpResponseErrorMessage(new Date().getTime(),
                         500,
                         sw.toString(), t.getMessage(), req.getRequestURI());
