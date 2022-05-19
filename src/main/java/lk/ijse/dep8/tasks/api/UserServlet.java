@@ -167,4 +167,29 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
         }
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        UserDTO user = getUser(req);
+        try(Connection connection = pool.getConnection()){
+            PreparedStatement stm = connection.prepareStatement("DELETE FROM user WHERE id=?");
+            stm.setString(1, user.getId());
+            if(stm.executeUpdate() != 1){
+                throw new SQLException("Failed to Delete the user");
+            }
+            resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+            new Thread(()->{
+                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
+                        user.getId());
+                try {
+                    Files.deleteIfExists(imagePath);
+                } catch (IOException e) {
+                    logger.warning("Failed to delete the image: " + imagePath.toAbsolutePath());
+                }
+            }).start();
+        }catch (SQLException e){
+            throw new ResponseStatusException(500, e.getMessage(), e);
+        }
+    }
 }
