@@ -86,27 +86,35 @@ public class UserServlet extends HttpServlet2 {
             stm.setString(3, DigestUtils.sha256Hex(password));
             stm.setString(4, name);
 
-            String pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
-                    + request.getServerPort() + request.getContextPath();
-            pictureUrl += "/uploads/" + id ;
-
+            String pictureUrl = null;
+            if(picture!=null){
+                pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
+                        + request.getServerPort() + request.getContextPath();
+                pictureUrl += "/uploads/" + id ;
+            }
             stm.setString(5, pictureUrl);
+
 
             if (stm.executeUpdate() != 1) {
                 throw new SQLException("Failed to Register User");
             }
-            String appLocation = getServletContext().getRealPath("/");
-            Path path = Paths.get(appLocation, "uploads");
 
-            if (Files.notExists(path)) {
-                Files.createDirectory(path);
-            }
 
-            String picturePath = path.resolve(id).toAbsolutePath().toString();
-            picture.write(picturePath);
 
-            if (Files.notExists(Paths.get(picturePath))){
-                throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save the picture");
+            if(picture != null){
+                String appLocation = getServletContext().getRealPath("/");
+                Path path = Paths.get(appLocation, "uploads");
+
+                if (Files.notExists(path)) {
+                    Files.createDirectory(path);
+                }
+
+                String picturePath = path.resolve(id).toAbsolutePath().toString();
+                picture.write(picturePath);
+
+                if (Files.notExists(Paths.get(picturePath))){
+                    throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save the picture");
+                }
             }
 
             connection.commit();
