@@ -2,6 +2,8 @@ package lk.ijse.dep8.tasks.api;
 
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
+import org.apache.commons.httpclient.HttpStatus;
+
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -12,7 +14,8 @@ import java.io.IOException;
 public class TestServlet extends HttpServlet2 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Somethings goes bad");
+//        throw new ResponseStatusException(400, "Somethings goes bad");
+        throw new ResponseStatusException(201, "Everything is okay");
     }
 
     @Override

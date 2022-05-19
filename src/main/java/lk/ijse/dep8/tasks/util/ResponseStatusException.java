@@ -10,6 +10,7 @@ public class ResponseStatusException extends RuntimeException{
         this.setStatus(status);
     }
 
+
     public ResponseStatusException(int status, String message, Throwable cause) {
         super(message, cause);
         this.setStatus(status);
