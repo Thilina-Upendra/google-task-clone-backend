@@ -46,11 +46,12 @@ public class UserDTO implements Serializable {
         this.email = email;
     }
 
+    @JsonbTransient
     public String getPassword() {
         return password;
     }
 
-    @JsonbTransient
+
     public void setPassword(String password) {
         this.password = password;
     }
