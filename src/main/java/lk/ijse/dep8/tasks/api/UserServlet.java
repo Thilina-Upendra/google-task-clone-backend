@@ -1,5 +1,6 @@
 package lk.ijse.dep8.tasks.api;
 
+import jdk.nashorn.internal.ir.CallNode;
 import lk.ijse.dep8.tasks.listener.DBInitializer;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
@@ -9,12 +10,21 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 @MultipartConfig(location = "/tmp", maxFileSize = 10 * 1024 * 1024)
-@WebServlet(name = "UserServlet", value = "/users/*")
+@WebServlet(name = "UserServlet", value = "/v1/users/*")
 public class UserServlet extends HttpServlet2 {
+
 
     final Logger logger = Logger.getLogger(UserServlet.class.getName());
 
@@ -26,6 +36,11 @@ public class UserServlet extends HttpServlet2 {
         if(request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")){
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;
+        }
+
+
+        if(request.getPathInfo() != null && !request.getPathInfo().equals("/")){
+            throw new ResponseStatusException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Invalid url");
         }
 
         String name = request.getParameter("name");
@@ -43,6 +58,37 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid picture");
         }
 
+        String application = getServletContext().getRealPath("/");
+        Path path = Paths.get(application, "uploads");
+        if(Files.notExists(path)){
+            Files.createDirectory(path);
+        }
 
+        try(Connection connection = pool.getConnection()){
+
+            connection.setAutoCommit(false);
+
+            PreparedStatement stm = connection.prepareStatement("INSERT INTO user (id, emali, password, full_name) VALUES (UUID(), ?, ?, ?)");
+            stm.setString(1, email);
+            stm.setString(2, password);
+            stm.setString(3, name);
+
+            if(stm.executeUpdate() != 1){
+                throw new SQLException("Failed to Register User");
+            }
+
+
+            stm = connection.prepareStatement("SELECT id FROM user WHERE email = ?");
+            stm.setString(1, email);
+            ResultSet rst = stm.executeQuery();
+            rst.next();
+            String uuid = rst.getString("id");
+
+            Path imagePath = path.resolve(uuid);
+            System.out.println(imagePath);
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }
