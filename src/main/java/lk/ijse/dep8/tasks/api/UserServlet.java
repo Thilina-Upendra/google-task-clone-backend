@@ -134,6 +134,14 @@ public class UserServlet extends HttpServlet2 {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Jsonb jsonb = JsonbBuilder.create();
+        UserDTO user = getUser(req);
+        resp.setContentType("application/json");
+        jsonb.toJson(user, resp.getWriter());
+    }
+
+
+    private UserDTO getUser(HttpServletRequest req){
         if (!(req.getPathInfo() != null && req.getPathInfo().replaceAll("/", "").length() == 36)){
             throw new ResponseStatusException(404, "Not found");
         }
@@ -153,9 +161,7 @@ public class UserServlet extends HttpServlet2 {
                 String picture = rst.getString("profile_pic");
                 UserDTO user = new UserDTO(userId, name, email, password, picture);
                 Jsonb jsonb = JsonbBuilder.create();
-
-                resp.setContentType("application/json");
-                jsonb.toJson(user, resp.getWriter());
+                return user;
             }
         }catch (SQLException e){
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
