@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-@MultipartConfig
+@MultipartConfig(location = "/tmp", maxFileSize = 10 * 1024 * 1024)
 @WebServlet(name = "UserServlet", value = "/users/*")
 public class UserServlet extends HttpServlet2 {
 
@@ -42,6 +42,7 @@ public class UserServlet extends HttpServlet2 {
         }else if(picture != null && !picture.getContentType().startsWith("image")){
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid picture");
         }
+
 
     }
 }
