@@ -14,10 +14,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 @WebListener
 public class LogInitializer implements ServletContextListener {
@@ -28,11 +25,13 @@ public class LogInitializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
+        Logger.getLogger("lk.ijse.dep8.tasks").addHandler(new ConsoleHandler());
+
         try {
             final Properties prop = new Properties();
             prop.load(this.getClass().getResourceAsStream("/application.properties"));
 
-            String profile = (String) prop.getOrDefault("app.profile.active", "dev");
+            String profile = (String) prop.getOrDefault("app.profiles.active", "dev");
             String logDir = (String) prop.getOrDefault("app.logging.path", "/var/logs");
 
             if(!(profile.equals("dev")||profile.equals("prod"))){
@@ -40,6 +39,7 @@ public class LogInitializer implements ServletContextListener {
                 profile = "dev";
             }
 
+            System.setProperty("app.profiles.active", profile);
             if(profile.equals("dev")){
                 Logger.getLogger("lk.ijse.dep8.tasks").setLevel(Level.FINE);
             }else{
