@@ -7,6 +7,8 @@ import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.listener.DBInitializer;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
+import org.apache.commons.codec.cli.Digest;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.*;
@@ -81,7 +83,7 @@ public class UserServlet extends HttpServlet2 {
             stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
             stm.setString(1, id);
             stm.setString(2, email);
-            stm.setString(3, password);
+            stm.setString(3, DigestUtils.sha256Hex(password));
             stm.setString(4, name);
 
             String pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
