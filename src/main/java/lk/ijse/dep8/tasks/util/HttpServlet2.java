@@ -19,7 +19,7 @@ public class HttpServlet2 extends HttpServlet {
 
     private Logger logger = Logger.getLogger(HttpServlet2.class.getName());
 
-    protected void doPatch(HttpServletRequest request, HttpServletResponse response){
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }
 
