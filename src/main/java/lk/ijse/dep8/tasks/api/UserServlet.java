@@ -1,6 +1,7 @@
 package lk.ijse.dep8.tasks.api;
 
 import lk.ijse.dep8.tasks.listener.DBInitializer;
+import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 
 import javax.annotation.Resource;
@@ -11,8 +12,9 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+@MultipartConfig
 @WebServlet(name = "UserServlet", value = "/users/*")
-public class UserServlet extends HttpServlet {
+public class UserServlet extends HttpServlet2 {
 
     final Logger logger = Logger.getLogger(UserServlet.class.getName());
 
@@ -21,7 +23,7 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if(request.getContentType() == null || !request.getContentType().equals("multipart/form-data")){
+        if(request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")){
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;
         }
