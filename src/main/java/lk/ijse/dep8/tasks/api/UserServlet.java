@@ -134,10 +134,31 @@ public class UserServlet extends HttpServlet2 {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (!(req.getPathInfo() != null &&
-                (req.getPathInfo().length() == 37 ||
-                        req.getPathInfo().length() == 38 && req.getPathInfo().endsWith("/")))){
+        if (!(req.getPathInfo() != null && req.getPathInfo().replaceAll("/", "").length() == 36)){
             throw new ResponseStatusException(404, "Not found");
+        }
+
+        String userId = req.getPathInfo().replaceAll("/", "");
+        try(Connection connection = pool.getConnection()){
+            PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE id=?");
+            stm.setString(1, userId);
+            ResultSet rst = stm.executeQuery();
+
+            if (!rst.next()){
+                throw new ResponseStatusException(404, "Invalid user id");
+            }else{
+                String name = rst.getString("full_name");
+                String email = rst.getString("email");
+                String password = rst.getString("password");
+                String picture = rst.getString("profile_pic");
+                UserDTO user = new UserDTO(userId, name, email, password, picture);
+                Jsonb jsonb = JsonbBuilder.create();
+
+                resp.setContentType("application/json");
+                jsonb.toJson(user, resp.getWriter());
+            }
+        }catch (SQLException e){
+            throw new ResponseStatusException(500, "Failed to fetch the user info", e);
         }
     }
 }
