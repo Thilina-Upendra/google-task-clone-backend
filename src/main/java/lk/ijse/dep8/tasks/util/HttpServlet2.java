@@ -19,10 +19,18 @@ public class HttpServlet2 extends HttpServlet {
 
     private Logger logger = Logger.getLogger(HttpServlet2.class.getName());
 
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         try{
-            super.service(req, res);
+            if(req.getMethod().equals("PATCH")){
+                doPatch(req, res);
+            }else{
+                super.service(req, res);
+            }
         }catch (Throwable t){
 
             if (!(t instanceof ResponseStatusException &&
@@ -47,6 +55,7 @@ public class HttpServlet2 extends HttpServlet {
                         rse.getStatus(),
                         sw.toString(), t.getMessage(), req.getRequestURI());
             }else{
+                res.setStatus(500);
                 errorMsg = new HttpResponseErrorMessage(new Date().getTime(),
                         500,
                         sw.toString(), t.getMessage(), req.getRequestURI());
