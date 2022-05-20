@@ -35,7 +35,6 @@ public class DispatcherServlet extends HttpServlet2 {
                 /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
 
                 getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
-                System.out.println("Task");
             }
         }
     }
