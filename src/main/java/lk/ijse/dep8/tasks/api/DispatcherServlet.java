@@ -33,7 +33,7 @@ public class DispatcherServlet extends HttpServlet2 {
                 /*/v1/users/{{user_id}}/lists/{{list_id}}*/
                 /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
 
-                getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
+                getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
             }
         }
     }
