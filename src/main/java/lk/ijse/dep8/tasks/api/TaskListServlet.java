@@ -9,18 +9,8 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-@WebServlet(name = "TaskListsServlet", urlPatterns = "/lists")
+@WebServlet(name = "TaskListsServlet")
 public class TaskListServlet extends HttpServlet2 {
-    @Override
-    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
-        String pattern = "/users/[A-Fa-f0-9\\-]{36}/lists/?.*";
-        if(pathInfo.matches(pattern)){
-            super.service(req, res);
-        }else{
-            res.sendError(HttpServletResponse.SC_NOT_FOUND);
-        }
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
