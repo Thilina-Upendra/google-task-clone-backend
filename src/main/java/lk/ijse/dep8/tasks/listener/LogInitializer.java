@@ -20,12 +20,20 @@ import java.util.logging.*;
 public class LogInitializer implements ServletContextListener {
 
     private Logger logger = Logger.getLogger(LogInitializer.class.getName());
-    FileHandler fileHandler;
+    private FileHandler fileHandler;
+
+    private ScheduledExecutorService executor;
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        executor.shutdown();
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
         Logger.getLogger("lk.ijse.dep8.tasks").addHandler(new ConsoleHandler());
+
 
         try {
             final Properties prop = new Properties();
@@ -64,7 +72,7 @@ public class LogInitializer implements ServletContextListener {
 
 
             /*Create CRON JOBS*/
-            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            executor = Executors.newSingleThreadScheduledExecutor();
             executor.scheduleWithFixedDelay(()->{
                installFileHandler(path);
             }, Duration.between(LocalTime.now(), LocalTime.MIDNIGHT).toMillis(), 60 * 60 * 24 * 1000, TimeUnit.MILLISECONDS);
