@@ -90,4 +90,15 @@ public class TaskListServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, e.getMessage(), e);
         }
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        /*Check the end point*/
+        /* /v1/users/{{user_id}}/tasks/{{task_id}} */
+        /* /v1/users/{{user_id}}/tasks/{{task_id}}/ */
+        /*When we delete the task list = 204*/
+
+    }
+
+//    private TaskListDTO getTaskList(){}
 }
