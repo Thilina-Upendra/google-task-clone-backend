@@ -100,5 +100,32 @@ public class TaskListServlet extends HttpServlet2 {
 
     }
 
-//    private TaskListDTO getTaskList(){}
+    private TaskListDTO getTaskList(HttpServletRequest req,  HttpServletResponse resp){
+        String pattern = "/([A-Fa-f0-9\\-]{36})/lists/(\\d+)/?";
+        if (!req.getPathInfo().matches(pattern)) {
+            throw new ResponseStatusException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+                    String.format("Invalid end point for %s request", req.getMethod()));
+        }
+
+        Matcher matcher = Pattern.compile(pattern).matcher(req.getPathInfo());
+        matcher.find();
+        String userId = matcher.group(1);
+        String taskListId = matcher.group(2);
+
+        try(Connection connection = pool.get().getConnection()){
+            PreparedStatement stm = connection.prepareStatement("SELECT * FROM task_list t WHERE t.id=? AND t.user_id=?");
+            stm.setString(1, taskListId);
+            stm.setString(2, userId);
+            ResultSet rst = stm.executeQuery();
+            if(rst.next()){
+                int id = rst.getInt("id");
+                String title = rst.getString("name");
+                return new TaskListDTO(id, title, userId);
+            }else{
+                throw new ResponseStatusException(404, "Invalid user id or task list id");
+            }
+        }catch (SQLException e){
+            throw new ResponseStatusException(500, "Failed to fetch task list details");
+        }
+    }
 }
