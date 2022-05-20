@@ -15,7 +15,6 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -115,7 +114,7 @@ public class TaskListServlet extends HttpServlet2 {
     }
 
     private TaskListDTO getTaskList(HttpServletRequest req,  HttpServletResponse resp){
-        String pattern = "/([A-Fa-f0-9\\-]{36})/lists/(\\d+)/?";
+        String pattern = "^/([A-Fa-f0-9\\-]{36})/lists/(\\d+)/?$";
         if (!req.getPathInfo().matches(pattern)) {
             throw new ResponseStatusException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
                     String.format("Invalid end point for %s request", req.getMethod()));
@@ -182,7 +181,7 @@ public class TaskListServlet extends HttpServlet2 {
         /*/v1/users/{{user-id}}/lists/{{list_id}} => Wanted list*/
         /*/v1/users/{{user-id}}/lists/{{list_id}} => Wanted list/*/
 
-        String pattern = "/([A-Fa-f0-9\\-]{36})/lists/?";
+        String pattern = "^/([A-Fa-f0-9\\-]{36})/lists/?$";
         Matcher matcher = Pattern.compile(pattern).matcher(req.getPathInfo());
         if(matcher.find()){
             String userId = matcher.group(1);
@@ -204,6 +203,12 @@ public class TaskListServlet extends HttpServlet2 {
             }catch (SQLException e){
                 throw new ResponseStatusException(500, e.getMessage(), e);
             }
+        }else{
+            TaskListDTO taskList = getTaskList(req, resp);
+            Jsonb jsonb = JsonbBuilder.create();
+
+            resp.setContentType("application/json");
+            jsonb.toJson(taskList, resp.getWriter());
         }
 
     }
