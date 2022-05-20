@@ -10,6 +10,7 @@ import java.io.IOException;
 @MultipartConfig(location = "/tmp", maxFileSize = 10 * 1024 * 1024)
 @WebServlet(name = "DispatcherServlet", value = "/v1/users/*")
 public class DispatcherServlet extends HttpServlet2 {
+
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         if(req.getPathInfo() == null || req.getPathInfo().equals("/")){
@@ -34,6 +35,7 @@ public class DispatcherServlet extends HttpServlet2 {
                 /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
 
                 getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
+                System.out.println("Task");
             }
         }
     }
