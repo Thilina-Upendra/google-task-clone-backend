@@ -70,7 +70,7 @@ public class TaskListServlet extends HttpServlet2 {
                 throw new ResponseStatusException(400, "Invalid title or title is empty");
             }
 
-            stm = connection.prepareStatement("INSERT INTO task_list (name,user_id) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+            stm = connection.prepareStatement("INSERT INTO task_list ( name ,user_id) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
             stm.setString(1, taskList.getTitle());
             stm.setString(2, userId);
             if (stm.executeUpdate() != 1) {
