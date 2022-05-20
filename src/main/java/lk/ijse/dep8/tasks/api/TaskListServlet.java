@@ -140,4 +140,31 @@ public class TaskListServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, "Failed to fetch task list details");
         }
     }
+
+    @Override
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if(request.getContentType() == null || request.getContentType().startsWith("application/jason")){
+            throw new ResponseStatusException(415, "Invalid content type or content type is empty");
+        }
+        TaskListDTO oldTaskList = getTaskList(request, response);
+        Jsonb jsonb = JsonbBuilder.create();
+        TaskListDTO newTaskList = jsonb.fromJson(request.getReader(), TaskListDTO.class);
+
+        if(newTaskList.getTitle() == null || newTaskList.getTitle().trim().isEmpty()){
+            throw new ResponseStatusException(400, "Invalid title or title is empty");
+        }
+
+        try (Connection connection = pool.get().getConnection()) {
+            PreparedStatement stm = connection.prepareStatement("UPDATE task_list SET name=? WHERE id=?");
+            stm.setString(1, newTaskList.getTitle());
+            stm.setInt(2, oldTaskList.getId());
+            if (stm.executeUpdate() != 1) {
+                throw new SQLException("Failed to update the task list");
+            }
+
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        } catch (SQLException e) {
+            throw new ResponseStatusException(500, e.getMessage(), e);
+        }
+    }
 }
