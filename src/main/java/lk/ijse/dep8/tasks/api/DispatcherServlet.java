@@ -7,6 +7,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 
+@MultipartConfig(location = "/tmp", maxFileSize = 10 * 1024 * 1024)
 @WebServlet(name = "DispatcherServlet", value = "/v1/users/*")
 public class DispatcherServlet extends HttpServlet2 {
     @Override
@@ -24,7 +25,7 @@ public class DispatcherServlet extends HttpServlet2 {
                 /*/v1/users/{{user_id}}*/
                 /*/v1/users/{{user_id}}/*/
 
-                getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
+                getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
             }else if(req.getPathInfo().matches("/[A-Fa-f0-9\\-]{36}/lists(/\\d+)?/?")){
                 /*UserTaskListServlet*/
                 /*/v1/users/{{user_id}}/lists*/
@@ -32,7 +33,7 @@ public class DispatcherServlet extends HttpServlet2 {
                 /*/v1/users/{{user_id}}/lists/{{list_id}}*/
                 /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
 
-                getServletContext().getRequestDispatcher("/lists").forward(req, res);
+                getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
             }
         }
     }
