@@ -1,5 +1,6 @@
 package lk.ijse.dep8.tasks.security;
 
+import lk.ijse.dep8.tasks.dto.UserDTO;
 import org.apache.commons.codec.cli.Digest;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -57,14 +58,19 @@ public class SecurityFilter extends HttpFilter {
             }
 
             if(!DigestUtils.sha256Hex(password).equals(rst.getString("password"))){
-                System.out.println("Here password");
                 res.setStatus(401);
                 return;
             }
 
+            SecurityContextHolder.setPrinciple(new UserDTO(
+                    rst.getString("id"),
+                    rst.getString("full_name"),
+                    rst.getString("email"),
+                    rst.getString("password"),
+                    rst.getString("profile_pic")
+            ));
 
-
-            System.out.println("Completes");
+            chain.doFilter(req, res);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
