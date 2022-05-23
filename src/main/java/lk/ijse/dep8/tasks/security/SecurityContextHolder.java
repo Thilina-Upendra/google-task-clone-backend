@@ -6,11 +6,11 @@ public class SecurityContextHolder {
 
     private static volatile ThreadLocal<UserDTO> principle = new ThreadLocal<>();
 
-    public static void setPrinciple(UserDTO user){
+    public static void setPrincipal(UserDTO user){
         principle.set(user);
     }
 
-    public static UserDTO getPrinciple(){
+    public static UserDTO getPrincipal(){
         return principle.get();
     }
 }
