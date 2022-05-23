@@ -23,16 +23,16 @@ public class DispatcherServlet extends HttpServlet2 {
     public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 
-        if(req.getPathInfo() == null || req.getPathInfo().equals("/")){
+        if (req.getPathInfo() == null || req.getPathInfo().equals("/")) {
             /*UserServlet*/
             /*/v1/users*/
             /*/v1/users/*/
 
             getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
-        }else{
+        } else {
             String pattern = "/([A-Fa-f0-9\\-]{36})/?.*";
             Matcher matcher = Pattern.compile(pattern).matcher(req.getPathInfo());
-            if (matcher.find()){
+            if (matcher.find()) {
                 String userId = matcher.group(1);
                 if (!userId.equals(SecurityContextHolder.getPrincipal().getId())) {
                     res.setContentType("application/json");
@@ -40,27 +40,28 @@ public class DispatcherServlet extends HttpServlet2 {
                     Jsonb jsonb = JsonbBuilder.create();
                     jsonb.toJson(new HttpResponseErrorMessage(new Date().getTime(), 403, null,
                             "Permission denied", req.getRequestURI()), res.getWriter());
-            }
-            if(req.getPathInfo().matches("/[A-Fa-f0-9\\-]{36}/?")){
-                /*UserServlet*/
-                /*/v1/users/{{user_id}}*/
-                /*/v1/users/{{user_id}}/*/
+                }
+                if (req.getPathInfo().matches("/[A-Fa-f0-9\\-]{36}/?")) {
+                    /*UserServlet*/
+                    /*/v1/users/{{user_id}}*/
+                    /*/v1/users/{{user_id}}/*/
 
-                getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
-            }else if(req.getPathInfo().matches("/[A-Fa-f0-9\\-]{36}/lists(/\\d+)?/?")){
-                /*UserTaskListServlet*/
-                /*/v1/users/{{user_id}}/lists*/
-                /*/v1/users/{{user_id}}/lists/*/
-                /*/v1/users/{{user_id}}/lists/{{list_id}}*/
-                /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
+                    getServletContext().getNamedDispatcher("UserServlet").forward(req, res);
+                } else if (req.getPathInfo().matches("/[A-Fa-f0-9\\-]{36}/lists(/\\d+)?/?")) {
+                    /*UserTaskListServlet*/
+                    /*/v1/users/{{user_id}}/lists*/
+                    /*/v1/users/{{user_id}}/lists/*/
+                    /*/v1/users/{{user_id}}/lists/{{list_id}}*/
+                    /*/v1/users/{{user_id}}/lists/{{list_id}}/*/
 
-                getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
-            }else{
-                res.setContentType("application/json");
-                res.setStatus(404);
-                Jsonb jsonb = JsonbBuilder.create();
-                jsonb.toJson(new HttpResponseErrorMessage(new Date().getTime(), 404, null,
-                        "Invalid location", req.getRequestURI()), res.getWriter());
+                    getServletContext().getNamedDispatcher("TaskListServlet").forward(req, res);
+                } else {
+                    res.setContentType("application/json");
+                    res.setStatus(404);
+                    Jsonb jsonb = JsonbBuilder.create();
+                    jsonb.toJson(new HttpResponseErrorMessage(new Date().getTime(), 404, null,
+                            "Invalid location", req.getRequestURI()), res.getWriter());
+                }
             }
         }
     }
