@@ -1,6 +1,7 @@
 package lk.ijse.dep8.tasks.dao;
 
 import lk.ijse.dep8.tasks.dto.UserDTO;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +12,7 @@ public class UserDAO {
 
 
     public static UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
-        PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE email = ? OR id=?");
+        PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE email = ? OR id=?");
         stm.setString(1, emailOrId);
         stm.setString(2, emailOrId);
         ResultSet rst = stm.executeQuery();
@@ -49,7 +50,19 @@ public class UserDAO {
         }
         return user;
     }
-    public static void updateUser(Connection connection,UserDTO user)throws SQLException {}
+    public static void updateUser(Connection connection,UserDTO user)throws SQLException {
+        PreparedStatement stm = connection.prepareStatement("UPDATE user SET full_name=?, password=?, profile_pic=? WHERE id=?");
+        stm.setString(1, user.getName());
+        stm.setString(2, user.getPassword());
+        stm.setString(3, user.getPicture());
+        stm.setString(4, user.getId());
+        if (stm.executeUpdate() != 1) {
+            throw new SQLException("Failed to update the user");
+        }
+
+    }
+
+
 
     public static void deleteUser(Connection connection,String userId)throws SQLException {
         PreparedStatement stm = connection.prepareStatement("DELETE FROM user WHERE id=?");

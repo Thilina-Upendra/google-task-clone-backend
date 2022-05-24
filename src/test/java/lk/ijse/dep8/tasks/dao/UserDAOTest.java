@@ -86,4 +86,23 @@ class UserDAOTest {
         //Then
         assertThrows(AssertionError.class, ()->existUser(userId));
     }
+
+    @Test
+    void updateUser() throws SQLException {
+        //Given
+        UserDTO user = UserDAO.getUser(connection, "4d2432c3-cd34-4083-b4ef-52886ab98760");
+        user.setName("Mooda Uppa");
+        user.setPassword("Changed password");
+        user.setPicture("Changed picture");
+
+        //When
+        UserDAO.updateUser(connection, user);
+        //Then
+        UserDTO updatedUser = UserDAO.getUser(connection, "admin@gmail.com");
+//        assertEquals(user.getName(),updatedUser.getName());
+//        assertEquals(user.getPassword(),updatedUser.getPassword());
+//        assertEquals(user.getPicture(),updatedUser.getPicture());
+
+        assertEquals(user, updatedUser);
+    }
 }

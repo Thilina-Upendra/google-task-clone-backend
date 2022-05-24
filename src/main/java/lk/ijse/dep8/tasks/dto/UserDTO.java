@@ -4,6 +4,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.json.bind.annotation.JsonbTransient;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class UserDTO implements Serializable {
      private String id;
@@ -64,5 +65,32 @@ public class UserDTO implements Serializable {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+       UserDTO compareWith =  (UserDTO)o;
+       return this.getId().equals(compareWith.getId()) &&
+               this.getName().equals(compareWith.getName()) &&
+               this.getPassword().equals(compareWith.getPassword()) &&
+               this.getEmail().equals(compareWith.getEmail()) &&
+               this.getPicture().equals(compareWith.getPicture());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, password, picture);
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", picture='" + picture + '\'' +
+                '}';
     }
 }

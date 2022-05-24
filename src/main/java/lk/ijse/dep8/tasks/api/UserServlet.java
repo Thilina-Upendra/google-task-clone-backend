@@ -209,7 +209,6 @@ public class UserServlet extends HttpServlet2 {
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         Part picture = request.getPart("picture");
-        System.out.println(picture);
 
         if (name == null || !name.matches("[A-Za-z ]+")) {
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid name or name is empty");
