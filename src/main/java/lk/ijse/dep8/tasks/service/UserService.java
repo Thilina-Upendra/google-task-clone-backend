@@ -13,10 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class UserService {
+
+    private static final Logger logger  = Logger.getLogger(UserService.class.getName());
 
     public static boolean existUser(Connection connection, String email) throws SQLException {
         return UserDAO.existUser(connection, email);
@@ -62,10 +66,20 @@ public class UserService {
     public static void updateUser(UserDTO user) {
     }
 
-    public static void deleteUser(String userId) {
+    public static void deleteUser(Connection connection, String userId, String appLocation) throws SQLException {
+        UserDAO.deleteUser(connection, userId);
+        new Thread(() -> {
+            Path imagePath = Paths.get(appLocation, "uploads",
+                    userId);
+            try {
+                Files.deleteIfExists(imagePath);
+            } catch (IOException e) {
+                logger.warning("Failed to delete the image: " + imagePath.toAbsolutePath());
+            }
+        }).start();
     }
 
-    public static UserDTO getUser(String userId) {
-        return null;
+    public static UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
+        return UserDAO.getUser(connection, emailOrId);
     }
 }

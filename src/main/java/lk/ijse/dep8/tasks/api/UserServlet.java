@@ -37,6 +37,7 @@ public class UserServlet extends HttpServlet2 {
 
     @Resource(name = "java:comp/env/jdbc/pool")
     private volatile DataSource pool;
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -68,11 +69,10 @@ public class UserServlet extends HttpServlet2 {
         }
 
 
+        try (Connection connection = pool.getConnection()) {
 
-        try (Connection connection = pool.getConnection())  {
 
-
-            if (UserService.existUser(connection, email)){
+            if (UserService.existUser(connection, email)) {
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
@@ -101,7 +101,6 @@ public class UserServlet extends HttpServlet2 {
 //            }
 
 
-
 //            if(picture != null){
 //                String appLocation = getServletContext().getRealPath("/");
 //                Path path = Paths.get(appLocation, "uploads");
@@ -120,11 +119,10 @@ public class UserServlet extends HttpServlet2 {
 //            connection.commit();
 
 
-
             String pictureUrl = null;
-            if(picture != null){
+            if (picture != null) {
                 pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
-                        + request.getServerPort() + request.getContextPath() +"/uploads/";
+                        + request.getServerPort() + request.getContextPath() + "/uploads/";
             }
 
             UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
@@ -151,6 +149,7 @@ public class UserServlet extends HttpServlet2 {
 //            }
         }
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Jsonb jsonb = JsonbBuilder.create();
@@ -158,56 +157,47 @@ public class UserServlet extends HttpServlet2 {
         resp.setContentType("application/json");
         jsonb.toJson(user, resp.getWriter());
     }
-    private UserDTO getUser(HttpServletRequest req){
-        if (!(req.getPathInfo() != null && req.getPathInfo().replaceAll("/", "").length() == 36)){
+
+    private UserDTO getUser(HttpServletRequest req) {
+        if (!(req.getPathInfo() != null && req.getPathInfo().replaceAll("/", "").length() == 36)) {
             throw new ResponseStatusException(404, "Not found");
         }
 
         String userId = req.getPathInfo().replaceAll("/", "");
-        try(Connection connection = pool.getConnection()){
-            PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE id=?");
-            stm.setString(1, userId);
-            ResultSet rst = stm.executeQuery();
+        try (Connection connection = pool.getConnection()) {
 
-            if (!rst.next()){
+
+            if (!UserService.existUser(connection, userId)) {
                 throw new ResponseStatusException(404, "Invalid user id");
-            }else{
-                String name = rst.getString("full_name");
-                String email = rst.getString("email");
-                String password = rst.getString("password");
-                String picture = rst.getString("profile_pic");
-                UserDTO user = new UserDTO(userId, name, email, password, picture);
-                Jsonb jsonb = JsonbBuilder.create();
-                return user;
+            } else {
+                return UserService.getUser(connection, userId);
             }
-        }catch (SQLException e){
+        } catch (Throwable e) {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
         }
     }
+
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO user = getUser(req);
-        try(Connection connection = pool.getConnection()){
-            PreparedStatement stm = connection.prepareStatement("DELETE FROM user WHERE id=?");
-            stm.setString(1, user.getId());
-            if(stm.executeUpdate() != 1){
-                throw new SQLException("Failed to Delete the user");
-            }
+        try (Connection connection = pool.getConnection()) {
+            String appLocation = getServletContext().getRealPath("/");
+            UserService.deleteUser(connection, user.getId(), appLocation);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
-
-            new Thread(()->{
-                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
-                        user.getId());
-                try {
-                    Files.deleteIfExists(imagePath);
-                } catch (IOException e) {
-                    logger.warning("Failed to delete the image: " + imagePath.toAbsolutePath());
-                }
-            }).start();
-        }catch (SQLException e){
+//            new Thread(() -> {
+//                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
+//                        user.getId());
+//                try {
+//                    Files.deleteIfExists(imagePath);
+//                } catch (IOException e) {
+//                    logger.warning("Failed to delete the image: " + imagePath.toAbsolutePath());
+//                }
+//            }).start();
+        } catch (SQLException e) {
             throw new ResponseStatusException(500, e.getMessage(), e);
         }
     }
+
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")) {

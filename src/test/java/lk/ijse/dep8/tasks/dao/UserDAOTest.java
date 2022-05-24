@@ -1,9 +1,12 @@
 package lk.ijse.dep8.tasks.dao;
 
 import lk.ijse.dep8.tasks.dto.UserDTO;
+import lk.ijse.dep8.tasks.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,7 +20,7 @@ class UserDAOTest {
 
     @BeforeEach
     void setUp() {
-        try{
+        try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/dep8_tasks", "root", "mysql");
             connection.setAutoCommit(false);
@@ -29,10 +32,10 @@ class UserDAOTest {
     }
 
 
-
-    @Test
-    void existUser() throws SQLException {
-        boolean result = UserDAO.existUser(connection, "dula@gmail.com");
+    @ParameterizedTest
+    @ValueSource(strings = {"dula@gmail.com", "2aa109a4-0584-455b-9a78-456fed7b5309"})
+    void existUser(String args) throws SQLException {
+        boolean result = UserDAO.existUser(connection, args);
         assertTrue(result);
     }
 
@@ -63,5 +66,24 @@ class UserDAOTest {
         assertEquals(givenUser, saveUser);
         boolean result = UserDAO.existUser(connection, saveUser.getEmail());
         assertTrue(result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"dula@gmail.com","abc@gmail.com", "2aa109a4-0584-455b-9a78-456fed7b5309"})
+    void getUser(/*Given*/String args) throws SQLException {
+        //When
+        UserDTO user = UserDAO.getUser(connection, args);
+        //Then
+        assertNotNull(user);
+    }
+
+    @Test
+    void deleteUser() throws SQLException {
+        //Given
+        String userId = "3a6fcb32-b03c-4a3d-80e8-7e7d0b656bd2";
+        //When
+        UserDAO.deleteUser(connection,userId);
+        //Then
+        assertThrows(AssertionError.class, ()->existUser(userId));
     }
 }
