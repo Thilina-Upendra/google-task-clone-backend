@@ -20,7 +20,7 @@ public class UserDAO {
         PreparedStatement stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
         stm.setString(1, user.getId());
         stm.setString(2, user.getEmail());
-        stm.setString(3, DigestUtils.sha256Hex(user.getPassword()));
+        stm.setString(3, user.getPassword());
         stm.setString(4, user.getName());
         stm.setString(5, user.getPicture());
 

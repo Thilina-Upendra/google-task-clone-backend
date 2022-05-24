@@ -3,6 +3,7 @@ package lk.ijse.dep8.tasks.service;
 import lk.ijse.dep8.tasks.dao.UserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -30,6 +31,8 @@ public class UserService {
             if (picture != null) {
                 user.setPicture(user.getPicture()+ user.getId());
             }
+            System.out.println(user.getPassword());
+            user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
             UserDTO savedUser = UserDAO.saveUser(connection, user);
 
             if(picture != null){
