@@ -5,6 +5,7 @@ import jakarta.json.bind.JsonbBuilder;
 import jdk.nashorn.internal.ir.CallNode;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.listener.DBInitializer;
+import lk.ijse.dep8.tasks.service.UserService;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.cli.Digest;
@@ -38,21 +39,24 @@ public class UserServlet extends HttpServlet2 {
     private volatile DataSource pool;
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        /*API Layer */
         if (request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")) {
             response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
             return;
         }
-
-
+        /*API Layer */
         if (request.getPathInfo() != null && !request.getPathInfo().equals("/")) {
             throw new ResponseStatusException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Invalid url");
         }
 
+        /*API Layer */
         String name = request.getParameter("name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         Part picture = request.getPart("picture");
 
+        /*API Layer */
         if (name == null || !name.matches("[A-Za-z ]+")) {
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid name or name is empty");
         } else if (email == null || !email.matches("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")) {
@@ -63,20 +67,20 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid picture");
         }
 
+
+
         Connection connection = null;
         try  {
 
             connection = pool.getConnection();
 
-            PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE email = ?");
-            stm.setString(1, email);
-            if (stm.executeQuery().next()){
+
+            if (UserService.existUser(connection, email)){
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
-
+            /*Start transaction*/
             connection.setAutoCommit(false);
-
 
             String id = UUID.randomUUID().toString();
             stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
