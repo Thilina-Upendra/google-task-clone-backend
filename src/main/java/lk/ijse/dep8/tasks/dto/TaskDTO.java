@@ -4,22 +4,22 @@ import jakarta.json.bind.annotation.JsonbTransient;
 
 import java.io.Serializable;
 
-public class TaskListDTO implements Serializable {
+public class TaskDTO implements Serializable {
     private Integer id;
     private String title;
 
     @JsonbTransient
     private String userId;
 
-    public TaskListDTO() {
+    public TaskDTO() {
     }
 
-    public TaskListDTO(Integer id, String title) {
+    public TaskDTO(Integer id, String title) {
         this.id = id;
         this.title = title;
     }
 
-    public TaskListDTO(Integer id, String title, String userId) {
+    public TaskDTO(Integer id, String title, String userId) {
         this.id = id;
         this.title = title;
         this.userId = userId;

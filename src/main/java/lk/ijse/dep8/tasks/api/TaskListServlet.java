@@ -3,7 +3,7 @@ package lk.ijse.dep8.tasks.api;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbException;
-import lk.ijse.dep8.tasks.dto.TaskListDTO;
+import lk.ijse.dep8.tasks.dto.TaskDTO;
 import lk.ijse.dep8.tasks.dto.TaskListsDTO;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
@@ -66,7 +66,7 @@ public class TaskListServlet extends HttpServlet2 {
             }
 
             Jsonb jsonb = JsonbBuilder.create();
-            TaskListDTO taskList = jsonb.fromJson(req.getReader(), TaskListDTO.class);
+            TaskDTO taskList = jsonb.fromJson(req.getReader(), TaskDTO.class);
 
             if (taskList.getTitle().trim().isEmpty()) {
                 throw new ResponseStatusException(400, "Invalid title or title is empty");
@@ -99,7 +99,7 @@ public class TaskListServlet extends HttpServlet2 {
         /* /v1/users/{{user_id}}/tasks/{{task_id}} */
         /* /v1/users/{{user_id}}/tasks/{{task_id}}/ */
         /*When we delete the task list = 204*/
-        TaskListDTO taskList = getTaskList(req, resp);
+        TaskDTO taskList = getTaskList(req, resp);
         try (Connection connection = pool.get().getConnection()) {
             PreparedStatement stm = connection.prepareStatement("DELETE FROM task_list WHERE id=?");
             stm.setInt(1, taskList.getId());
@@ -113,7 +113,7 @@ public class TaskListServlet extends HttpServlet2 {
 
     }
 
-    private TaskListDTO getTaskList(HttpServletRequest req,  HttpServletResponse resp){
+    private TaskDTO getTaskList(HttpServletRequest req, HttpServletResponse resp){
         String pattern = "^/([A-Fa-f0-9\\-]{36})/lists/(\\d+)/?$";
         if (!req.getPathInfo().matches(pattern)) {
             throw new ResponseStatusException(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
@@ -133,7 +133,7 @@ public class TaskListServlet extends HttpServlet2 {
             if(rst.next()){
                 int id = rst.getInt("id");
                 String title = rst.getString("name");
-                return new TaskListDTO(id, title, userId);
+                return new TaskDTO(id, title, userId);
             }else{
                 throw new ResponseStatusException(404, "Invalid user id or task list id");
             }
@@ -147,11 +147,11 @@ public class TaskListServlet extends HttpServlet2 {
         if(request.getContentType() == null || request.getContentType().startsWith("application/jason")){
             throw new ResponseStatusException(415, "Invalid content type or content type is empty");
         }
-        TaskListDTO oldTaskList = getTaskList(request, response);
+        TaskDTO oldTaskList = getTaskList(request, response);
         Jsonb jsonb = JsonbBuilder.create();
-        TaskListDTO newTaskList;
+        TaskDTO newTaskList;
         try{
-            newTaskList = jsonb.fromJson(request.getReader(), TaskListDTO.class);
+            newTaskList = jsonb.fromJson(request.getReader(), TaskDTO.class);
         }catch (JsonbException e){
             throw new ResponseStatusException(400, "Invalid JSON", e);
         }
@@ -190,11 +190,11 @@ public class TaskListServlet extends HttpServlet2 {
                 stm.setString(1,userId);
                 ResultSet rst = stm.executeQuery();
 
-                ArrayList<TaskListDTO> taskLists = new ArrayList<>();
+                ArrayList<TaskDTO> taskLists = new ArrayList<>();
                 while (rst.next()){
                     int id = rst.getInt("id");
                     String title = rst.getString("name");
-                    taskLists.add(new TaskListDTO(id, title, userId));
+                    taskLists.add(new TaskDTO(id, title, userId));
                 }
 
                 resp.setContentType("application/json");
@@ -204,7 +204,7 @@ public class TaskListServlet extends HttpServlet2 {
                 throw new ResponseStatusException(500, e.getMessage(), e);
             }
         }else{
-            TaskListDTO taskList = getTaskList(req, resp);
+            TaskDTO taskList = getTaskList(req, resp);
             Jsonb jsonb = JsonbBuilder.create();
 
             resp.setContentType("application/json");
