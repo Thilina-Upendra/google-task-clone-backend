@@ -119,13 +119,15 @@ public class UserServlet extends HttpServlet2 {
 //            }
 //            connection.commit();
 
-            UserDTO user = new UserDTO(null, name, email, password, null);
+
 
             String pictureUrl = null;
             if(picture != null){
                 pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
                         + request.getServerPort() + request.getContextPath() +"/uploads/";
             }
+
+            UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
             user = UserService.registerUser(connection, picture,
                     getServletContext().getRealPath("/"), user);
 
