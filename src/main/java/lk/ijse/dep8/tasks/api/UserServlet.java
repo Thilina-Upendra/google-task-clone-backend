@@ -36,7 +36,6 @@ public class UserServlet extends HttpServlet2 {
 
     @Resource(name = "java:comp/env/jdbc/pool")
     private volatile DataSource pool;
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")) {
@@ -139,7 +138,6 @@ public class UserServlet extends HttpServlet2 {
             }
         }
     }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Jsonb jsonb = JsonbBuilder.create();
@@ -147,8 +145,6 @@ public class UserServlet extends HttpServlet2 {
         resp.setContentType("application/json");
         jsonb.toJson(user, resp.getWriter());
     }
-
-
     private UserDTO getUser(HttpServletRequest req){
         if (!(req.getPathInfo() != null && req.getPathInfo().replaceAll("/", "").length() == 36)){
             throw new ResponseStatusException(404, "Not found");
@@ -175,7 +171,6 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
         }
     }
-
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO user = getUser(req);
@@ -200,7 +195,6 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(500, e.getMessage(), e);
         }
     }
-
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request.getContentType() == null || !request.getContentType().startsWith("multipart/form-data")) {
