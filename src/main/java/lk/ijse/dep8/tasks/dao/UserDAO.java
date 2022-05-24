@@ -1,8 +1,8 @@
 package lk.ijse.dep8.tasks.dao;
 
+import lk.ijse.dep8.tasks.dao.exception.DataAccessException;
 import lk.ijse.dep8.tasks.entity.User;
 
-import javax.jws.soap.SOAPBinding;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +57,10 @@ public class UserDAO {
 
     public void deleteUserById(String userId) {
         try {
+
+            if(!existsById(userId)){
+                throw new DataAccessException("No user found");
+            }
             PreparedStatement stm = connection.prepareStatement("DELETE FROM user WHERE id=?");
             stm.setString(1, userId);
             if(stm.executeUpdate() != 1){
@@ -108,7 +112,7 @@ public class UserDAO {
         return users;
     }
 
-    public long count() {
+    public long countUsers() {
         Statement stm = null;
         try {
             stm = connection.createStatement();
