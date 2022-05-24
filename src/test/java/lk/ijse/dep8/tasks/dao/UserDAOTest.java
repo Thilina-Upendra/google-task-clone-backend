@@ -35,7 +35,7 @@ class UserDAOTest {
     @ParameterizedTest
     @ValueSource(strings = {"dula@gmail.com", "2aa109a4-0584-455b-9a78-456fed7b5309"})
     void existUser(String args) throws SQLException {
-        boolean result = UserDAO.existUser(connection, args);
+        boolean result = new UserDAO().existUser(connection, args);
         assertTrue(result);
     }
 
@@ -62,9 +62,9 @@ class UserDAOTest {
                 "dula$1225",
                 null
         );
-        UserDTO saveUser = UserDAO.saveUser(connection, givenUser);
+        UserDTO saveUser = new UserDAO().saveUser(connection, givenUser);
         assertEquals(givenUser, saveUser);
-        boolean result = UserDAO.existUser(connection, saveUser.getEmail());
+        boolean result = new UserDAO().existUser(connection, saveUser.getEmail());
         assertTrue(result);
     }
 
@@ -72,7 +72,7 @@ class UserDAOTest {
     @ValueSource(strings = {"dula@gmail.com","abc@gmail.com", "2aa109a4-0584-455b-9a78-456fed7b5309"})
     void getUser(/*Given*/String args) throws SQLException {
         //When
-        UserDTO user = UserDAO.getUser(connection, args);
+        UserDTO user = new UserDAO().getUser(connection, args);
         //Then
         assertNotNull(user);
     }
@@ -82,7 +82,7 @@ class UserDAOTest {
         //Given
         String userId = "3a6fcb32-b03c-4a3d-80e8-7e7d0b656bd2";
         //When
-        UserDAO.deleteUser(connection,userId);
+        new UserDAO().deleteUser(connection,userId);
         //Then
         assertThrows(AssertionError.class, ()->existUser(userId));
     }
@@ -90,15 +90,15 @@ class UserDAOTest {
     @Test
     void updateUser() throws SQLException {
         //Given
-        UserDTO user = UserDAO.getUser(connection, "4d2432c3-cd34-4083-b4ef-52886ab98760");
+        UserDTO user = new UserDAO().getUser(connection, "4d2432c3-cd34-4083-b4ef-52886ab98760");
         user.setName("Mooda Uppa");
         user.setPassword("Changed password");
         user.setPicture("Changed picture");
 
         //When
-        UserDAO.updateUser(connection, user);
+        new UserDAO().updateUser(connection, user);
         //Then
-        UserDTO updatedUser = UserDAO.getUser(connection, "admin@gmail.com");
+        UserDTO updatedUser = new UserDAO().getUser(connection, "admin@gmail.com");
 //        assertEquals(user.getName(),updatedUser.getName());
 //        assertEquals(user.getPassword(),updatedUser.getPassword());
 //        assertEquals(user.getPicture(),updatedUser.getPicture());

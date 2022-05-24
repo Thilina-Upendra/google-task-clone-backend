@@ -72,7 +72,7 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (UserService.existUser(connection, email)) {
+            if (new UserService().existUser(connection, email)) {
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
@@ -126,7 +126,7 @@ public class UserServlet extends HttpServlet2 {
             }
 
             UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
-            user = UserService.registerUser(connection, picture,
+            user = new UserService().registerUser(connection, picture,
                     getServletContext().getRealPath("/"), user);
 
             /*API layer*/
@@ -167,10 +167,10 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (!UserService.existUser(connection, userId)) {
+            if (!new UserService().existUser(connection, userId)) {
                 throw new ResponseStatusException(404, "Invalid user id");
             } else {
-                return UserService.getUser(connection, userId);
+                return new UserService().getUser(connection, userId);
             }
         } catch (Throwable e) {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
@@ -182,7 +182,7 @@ public class UserServlet extends HttpServlet2 {
         UserDTO user = getUser(req);
         try (Connection connection = pool.getConnection()) {
             String appLocation = getServletContext().getRealPath("/");
-            UserService.deleteUser(connection, user.getId(), appLocation);
+            new UserService().deleteUser(connection, user.getId(), appLocation);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 //            new Thread(() -> {
 //                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
@@ -218,61 +218,37 @@ public class UserServlet extends HttpServlet2 {
             throw new ResponseStatusException(HttpServletResponse.SC_BAD_REQUEST, "Invalid picture");
         }
 
-        Connection connection = null;
-        try {
-            connection = pool.getConnection();
-            connection.setAutoCommit(false);
 
-            PreparedStatement stm = connection.prepareStatement("UPDATE user SET full_name=?, password=?, profile_pic=? WHERE id=?");
-            stm.setString(1, name);
-            stm.setString(2, DigestUtils.sha256Hex(password));
+        try (Connection connection = pool.getConnection()){
 
+//            connection.setAutoCommit(false);
+//
+//            PreparedStatement stm = connection.prepareStatement("UPDATE user SET full_name=?, password=?, profile_pic=? WHERE id=?");
+//            stm.setString(1, name);
+//            stm.setString(2, DigestUtils.sha256Hex(password));
+//
+//            String pictureUrl = null;
+//            if (picture != null) {
+//                pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
+//                        + request.getServerPort() + request.getContextPath();
+//                pictureUrl += "/uploads/" + user.getId();
+//            }
+//            stm.setString(3, pictureUrl);
+//            stm.setString(4, user.getId());
+//
+//            if (stm.executeUpdate() != 1) {
+//                throw new SQLException("Failed to update the user");
+//            }
             String pictureUrl = null;
-            if (picture != null) {
-                pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
-                        + request.getServerPort() + request.getContextPath();
+            if (picture != null) {pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
+                    + request.getServerPort() + request.getContextPath();
                 pictureUrl += "/uploads/" + user.getId();
             }
-            stm.setString(3, pictureUrl);
-            stm.setString(4, user.getId());
+            new UserService().updateUser(connection, new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
+                    picture, getServletContext().getRealPath("/"));
 
-            if (stm.executeUpdate() != 1) {
-                throw new SQLException("Failed to update the user");
-            }
-
-            String appLocation = getServletContext().getRealPath("/");
-            Path path = Paths.get(appLocation, "uploads");
-            String picturePath = path.resolve(user.getId()).toAbsolutePath().toString();
-
-            if (picture != null) {
-                if (Files.notExists(path)) {
-                    Files.createDirectory(path);
-                }
-
-                Files.deleteIfExists(Paths.get(picturePath));
-                picture.write(picturePath);
-
-                if (Files.notExists(Paths.get(picturePath))) {
-                    throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save the picture");
-                }
-            } else {
-                Files.deleteIfExists(Paths.get(picturePath));
-            }
-
-            connection.commit();
-            response.setStatus(204);
-        } catch (SQLException | IOException e) {
-            throw new ResponseStatusException(500, e.getMessage(), e);
-        } finally {
-            try {
-                if (!connection.getAutoCommit()) {
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                }
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 }
