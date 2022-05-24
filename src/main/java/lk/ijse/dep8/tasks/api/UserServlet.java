@@ -69,10 +69,7 @@ public class UserServlet extends HttpServlet2 {
 
 
 
-        Connection connection = null;
-        try  {
-
-            connection = pool.getConnection();
+        try (Connection connection = pool.getConnection())  {
 
 
             if (UserService.existUser(connection, email)){
@@ -80,66 +77,76 @@ public class UserServlet extends HttpServlet2 {
             }
 
             /*Start transaction*/
-            connection.setAutoCommit(false);
+//            connection.setAutoCommit(false); //Service
 
-            String id = UUID.randomUUID().toString();
-            stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
-            stm.setString(1, id);
-            stm.setString(2, email);
-            stm.setString(3, DigestUtils.sha256Hex(password));
-            stm.setString(4, name);
+//            String id = UUID.randomUUID().toString(); //Service
+//            PreparedStatement stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUES (?,?, ?, ?, ?)");
+//            stm.setString(1, id);
+//            stm.setString(2, email);
+//            stm.setString(3, DigestUtils.sha256Hex(password)); //Service
+//            stm.setString(4, name);
+
+
+//            String pictureUrl = null;
+//            if(picture!=null){
+//                pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
+//                        + request.getServerPort() + request.getContextPath();
+//                pictureUrl += "/uploads/" + id ;
+//            }
+//            stm.setString(5, pictureUrl);
+
+
+//            if (stm.executeUpdate() != 1) {
+//                throw new SQLException("Failed to Register User");
+//            }
+
+
+
+//            if(picture != null){
+//                String appLocation = getServletContext().getRealPath("/");
+//                Path path = Paths.get(appLocation, "uploads");
+//
+//                if (Files.notExists(path)) {
+//                    Files.createDirectory(path);
+//                }
+//
+//                String picturePath = path.resolve(id).toAbsolutePath().toString();
+//                picture.write(picturePath);
+//
+//                if (Files.notExists(Paths.get(picturePath))){
+//                    throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save the picture");
+//                }
+//            }
+//            connection.commit();
+
+            UserDTO user = new UserDTO(null, name, email, password, null);
 
             String pictureUrl = null;
-            if(picture!=null){
+            if(picture != null){
                 pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
                         + request.getServerPort() + request.getContextPath();
-                pictureUrl += "/uploads/" + id ;
             }
-            stm.setString(5, pictureUrl);
+            user = UserService.registerUser(connection, picture,
+                    getServletContext().getRealPath("/"), user);
 
-
-            if (stm.executeUpdate() != 1) {
-                throw new SQLException("Failed to Register User");
-            }
-
-
-
-            if(picture != null){
-                String appLocation = getServletContext().getRealPath("/");
-                Path path = Paths.get(appLocation, "uploads");
-
-                if (Files.notExists(path)) {
-                    Files.createDirectory(path);
-                }
-
-                String picturePath = path.resolve(id).toAbsolutePath().toString();
-                picture.write(picturePath);
-
-                if (Files.notExists(Paths.get(picturePath))){
-                    throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to save the picture");
-                }
-            }
-
-            connection.commit();
-
+            /*API layer*/
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.setContentType("application/json");
-            UserDTO userDTO = new UserDTO(id, name, email, password, pictureUrl);
             Jsonb jsonb = JsonbBuilder.create();
-            jsonb.toJson(userDTO, response.getWriter());
+            jsonb.toJson(user, response.getWriter());
 
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to register the user");
         } finally {
-            try {
-                if (!connection.getAutoCommit()){
-                    connection.rollback();
-                    connection.setAutoCommit(true);
-                }
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                if (!connection.getAutoCommit()){
+//                    connection.rollback();
+//                    connection.setAutoCommit(true);
+//                }
+//                connection.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
         }
     }
     @Override
