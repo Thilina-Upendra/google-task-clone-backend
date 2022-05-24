@@ -4,20 +4,20 @@ import java.io.Serializable;
 import java.util.List;
 
 public class TaskListsDTO implements Serializable {
-    private List<TaskListDTO> item;
+    private List<TaskDTO> item;
 
     public TaskListsDTO() {
     }
 
-    public TaskListsDTO(List<TaskListDTO> item) {
+    public TaskListsDTO(List<TaskDTO> item) {
         this.item = item;
     }
 
-    public List<TaskListDTO> getItem() {
+    public List<TaskDTO> getItem() {
         return item;
     }
 
-    public void setItem(List<TaskListDTO> item) {
+    public void setItem(List<TaskDTO> item) {
         this.item = item;
     }
 }

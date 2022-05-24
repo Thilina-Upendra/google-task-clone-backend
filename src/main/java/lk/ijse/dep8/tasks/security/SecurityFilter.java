@@ -61,6 +61,8 @@ public class SecurityFilter extends HttpFilter {
                 return;
             }
 
+            System.out.println(password);
+            System.out.println(DigestUtils.sha256Hex(password));
             if(!DigestUtils.sha256Hex(password).equals(rst.getString("password"))){
                sendErrorResponse(req, res);
                 return;
