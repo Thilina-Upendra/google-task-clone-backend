@@ -1,7 +1,6 @@
 package lk.ijse.dep8.tasks.service;
 
-import com.sun.org.apache.bcel.internal.generic.FALOAD;
-import lk.ijse.dep8.tasks.dao.UserDAO;
+import lk.ijse.dep8.tasks.dao.OldUserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -13,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -24,7 +21,7 @@ public class UserService {
     private  final Logger logger  = Logger.getLogger(UserService.class.getName());
 
     public  boolean existUser(Connection connection, String email) throws SQLException {
-        return new UserDAO().existUser(connection, email);
+        return new OldUserDAO().existUser(connection, email);
     }
 
     public  UserDTO registerUser(Connection connection, Part picture,String appLocation, UserDTO user)throws SQLException {
@@ -38,7 +35,7 @@ public class UserService {
             }
             System.out.println(user.getPassword());
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            UserDTO savedUser = new UserDAO().saveUser(connection, user);
+            UserDTO savedUser = new OldUserDAO().saveUser(connection, user);
 
             if(picture != null){
                 Path path = Paths.get(appLocation, "uploads");
@@ -68,7 +65,7 @@ public class UserService {
         try {
             connection.setAutoCommit(false);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            new UserDAO().updateUser(connection, user);
+            new OldUserDAO().updateUser(connection, user);
 
 
             Path path = Paths.get(appLocation, "uploads");
@@ -111,7 +108,7 @@ public class UserService {
     }
 
     public  void deleteUser(Connection connection, String userId, String appLocation) throws SQLException {
-        new UserDAO().deleteUser(connection, userId);
+        new OldUserDAO().deleteUser(connection, userId);
         new Thread(() -> {
             Path imagePath = Paths.get(appLocation, "uploads",
                     userId);
@@ -124,6 +121,6 @@ public class UserService {
     }
 
     public  UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
-        return new UserDAO().getUser(connection, emailOrId);
+        return new OldUserDAO().getUser(connection, emailOrId);
     }
 }
