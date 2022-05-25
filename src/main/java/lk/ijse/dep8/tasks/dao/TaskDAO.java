@@ -23,7 +23,7 @@ public class TaskDAO {
                 stm.setString(1, task.getTitle());
                 stm.setString(2, task.getDetails());
                 stm.setString(3, task.getPosition());
-                stm.setObject(4, task.getStatus());
+                stm.setString(4, task.getStatus().toString());
                 stm.setInt(5, task.getTaskListId());
                 if(stm.executeUpdate() != 1){
                     throw new SQLException("Failed to save Task");
@@ -33,8 +33,9 @@ public class TaskDAO {
                 stm.setString(1, task.getTitle());
                 stm.setString(2, task.getDetails());
                 stm.setString(3, task.getPosition());
-                stm.setInt(4, task.getTaskListId());
-                stm.setInt(5, task.getId());
+                stm.setString(4, task.getStatus().toString());
+                stm.setInt(5, task.getTaskListId());
+                stm.setInt(6, task.getId());
                 if(stm.executeUpdate() != 1){
                     throw new SQLException("Failed to update Task");
                 }
@@ -82,7 +83,7 @@ public class TaskDAO {
                         rst.getString("title"),
                         rst.getString("details"),
                         rst.getString("position"),
-                        (Task.Status) rst.getObject("status"),
+                        Task.Status.valueOf(rst.getString("status")),
                         rst.getInt("task_list_id")
                 ));
             }else{
@@ -104,7 +105,7 @@ public class TaskDAO {
                         rst.getString("title"),
                         rst.getString("details"),
                         rst.getString("position"),
-                        (Task.Status) rst.getObject("status"),
+                        Task.Status.valueOf(rst.getString("status")),
                         rst.getInt("task_list_id")
                 ));
             }
