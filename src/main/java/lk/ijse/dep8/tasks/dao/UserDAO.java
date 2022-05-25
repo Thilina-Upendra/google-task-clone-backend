@@ -54,6 +54,16 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
+    public boolean existsUserByEmailOrId(String emailOrId){
+        try {
+            PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE id=? OR email=?");
+            stm.setString(1, emailOrId);
+            stm.setString(2, emailOrId);
+            return stm.executeQuery().next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void deleteUserById(String userId) {
         try {
@@ -75,6 +85,28 @@ public class UserDAO {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE id=?");
             stm.setString(1, userId);
+            ResultSet rst = stm.executeQuery();
+            if(rst.next()){
+                return  Optional.of(new User(
+                        rst.getString("id"),
+                        rst.getString("email"),
+                        rst.getString("password"),
+                        rst.getString("full_name"),
+                        rst.getString("profile_pic")
+                ));
+            }else{
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<User> findUserByIdOrEmail(String userIdOrMail) {
+        try {
+            PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE id=? OR email=?");
+            stm.setString(1, userIdOrMail);
+            stm.setString(2, userIdOrMail);
             ResultSet rst = stm.executeQuery();
             if(rst.next()){
                 return  Optional.of(new User(
