@@ -16,7 +16,8 @@ public class TaskDAOImpl implements TaskDAO {
         this.connection = connection;
     }
 
-    public Task saveTask(Task task) {
+    @Override
+    public Object save(Object task) {
         try{
             if(!existsTaskById(task.getId())){
                 PreparedStatement stm = connection.prepareStatement("INSERT INTO task (title, details, position, status, task_list_id) VALUE (?, ?, ?, ?, ?)");
@@ -46,7 +47,8 @@ public class TaskDAOImpl implements TaskDAO {
         return task;
     }
 
-    public boolean existsTaskById(int taskId) {
+    @Override
+    public boolean existsById(Object taskId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT id FROM task WHERE id=?");
             stm.setInt(1, taskId);
@@ -56,7 +58,8 @@ public class TaskDAOImpl implements TaskDAO {
         }
     }
 
-    public void deleteTaskById(int taskId) {
+    @Override
+    public void deleteById(Object taskId) {
         try {
 
             if(!existsTaskById(taskId)){
@@ -72,7 +75,8 @@ public class TaskDAOImpl implements TaskDAO {
         }
     }
 
-    public Optional<Task> findTaskById(int taskId) {
+    @Override
+    public Optional<Object> findById(Object taskId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT * FROM task WHERE id=?");
             stm.setInt(1, taskId);
@@ -94,7 +98,8 @@ public class TaskDAOImpl implements TaskDAO {
         }
     }
 
-    public List<Task> findAllTask() {
+    @Override
+    public List<Object> findAll() {
         List<Task> tasks = new ArrayList<>();
         try {
             Statement stm = connection.createStatement();
@@ -115,7 +120,8 @@ public class TaskDAOImpl implements TaskDAO {
         return tasks;
     }
 
-    public long countTask() {
+    @Override
+    public long count() {
 
         try {
             Statement stm = connection.createStatement();

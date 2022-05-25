@@ -64,7 +64,7 @@ class UserDAOImplTest {
     @ParameterizedTest()
     void saveUser(User givenUser) {
         //when
-        User savedUser = userDAOImpl.saveUser(givenUser);
+        Object savedUser = userDAOImpl.save(givenUser);
         //then
         assertEquals(givenUser, savedUser);
     }
@@ -75,7 +75,7 @@ class UserDAOImplTest {
     void existsUserById(String params) {
 
         //when
-        boolean exist = userDAOImpl.existsUserById(params);
+        boolean exist = userDAOImpl.existsById(params);
         //then
         if(params.equals("U100")){
             assertFalse(exist);
@@ -89,7 +89,7 @@ class UserDAOImplTest {
     @ParameterizedTest
     void findUserById(String params) {
         //when
-        Optional<User> userWrapper = userDAOImpl.findUserById(params);
+        Optional<Object> userWrapper = userDAOImpl.findById(params);
         //then
         if(params.equals("U100")){
             assertFalse(userWrapper.isPresent());
@@ -103,7 +103,7 @@ class UserDAOImplTest {
     @Test
     void findAllUsers() {
         //When
-        List<User> allUsers = userDAOImpl.findAllUsers();
+        List<Object> allUsers = userDAOImpl.findAll();
 
         //Then
         assertTrue(allUsers.size() >= 5);
@@ -115,9 +115,9 @@ class UserDAOImplTest {
     @ParameterizedTest
     void deleteUserById(String givenUserId) {
         if(givenUserId.equals("U100")){
-            assertThrows(DataAccessException.class, ()-> userDAOImpl.deleteUserById(givenUserId));
+            assertThrows(DataAccessException.class, ()-> userDAOImpl.deleteById(givenUserId));
         }else{
-            userDAOImpl.deleteUserById(givenUserId);
+            userDAOImpl.deleteById(givenUserId);
         }
     }
 
@@ -125,7 +125,7 @@ class UserDAOImplTest {
     @Order(6)
     @Test
     void testCountUsers() {
-        assertTrue(userDAOImpl.countUsers()>=5);
+        assertTrue(userDAOImpl.count()>=5);
     }
 
 

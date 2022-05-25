@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Task {
+public class Task implements SuperEntity {
     private int id;
     private String title;
     private String details;

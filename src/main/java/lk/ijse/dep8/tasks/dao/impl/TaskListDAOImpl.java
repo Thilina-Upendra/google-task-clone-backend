@@ -16,9 +16,11 @@ public class TaskListDAOImpl implements TaskListDAO {
         this.connection = connection;
     }
 
-    public TaskList saveTaskList(TaskList taskList) {
+    @Override
+    public Object save(Object entity) {
+        TaskList taskList = (TaskList) entity;
         try{
-            if(!existsTaskListById(taskList.getId())){
+            if(!existsById(taskList.getId())){
                 PreparedStatement stm = connection.prepareStatement("INSERT INTO task_list ( name, user_id) VALUE (?, ?, ?)");
                 stm.setString(1, taskList.getName());
                 stm.setString(2, taskList.getUserId());
@@ -40,20 +42,22 @@ public class TaskListDAOImpl implements TaskListDAO {
         return taskList;
     }
 
-    public boolean existsTaskListById(int taskListId) {
+    @Override
+    public boolean existsById(Object taskListId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT id FROM task_list WHERE id=?");
-            stm.setInt(1, taskListId);
+            stm.setInt(1, (int)taskListId);
             return stm.executeQuery().next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void deleteTaskListById(int taskListId) {
+    @Override
+    public void deleteById(Object taskListId) {
         try {
 
-            if(!existsTaskListById(taskListId)){
+            if(!existsById(taskListId)){
                 throw new DataAccessException("No Task List found");
             }
             PreparedStatement stm = connection.prepareStatement("DELETE FROM task_list WHERE id=?");
@@ -66,7 +70,8 @@ public class TaskListDAOImpl implements TaskListDAO {
         }
     }
 
-    public Optional<TaskList> findTaskListById(int taskListId) {
+    @Override
+    public Optional<Object> findById(Object taskListId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT * FROM task_list WHERE id=?");
             stm.setInt(1, taskListId);
@@ -85,7 +90,8 @@ public class TaskListDAOImpl implements TaskListDAO {
         }
     }
 
-    public List<TaskList> findAllTaskList() {
+    @Override
+    public List<Object> findAll() {
         List<TaskList> taskLists = new ArrayList<>();
         try {
             Statement stm = connection.createStatement();
@@ -103,7 +109,8 @@ public class TaskListDAOImpl implements TaskListDAO {
         return taskLists;
     }
 
-    public long countTaskList() {
+    @Override
+    public long count() {
         try {
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT COUNT(id) AS count FROM task_list");
