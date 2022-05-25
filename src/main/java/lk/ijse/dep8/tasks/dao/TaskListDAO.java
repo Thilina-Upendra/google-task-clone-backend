@@ -8,6 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public interface TaskListDAO extends SuperDAO{
+public interface TaskListDAO extends SuperDAO<TaskList, Integer>{
 
 }

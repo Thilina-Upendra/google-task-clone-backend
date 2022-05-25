@@ -89,7 +89,7 @@ class UserDAOImplTest {
     @ParameterizedTest
     void findUserById(String params) {
         //when
-        Optional<Object> userWrapper = userDAOImpl.findById(params);
+        Optional<User> userWrapper = userDAOImpl.findById(params);
         //then
         if(params.equals("U100")){
             assertFalse(userWrapper.isPresent());
@@ -103,7 +103,7 @@ class UserDAOImplTest {
     @Test
     void findAllUsers() {
         //When
-        List<Object> allUsers = userDAOImpl.findAll();
+        List<User> allUsers = userDAOImpl.findAll();
 
         //Then
         assertTrue(allUsers.size() >= 5);

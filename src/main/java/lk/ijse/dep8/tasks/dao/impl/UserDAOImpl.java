@@ -18,7 +18,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Object save(Object entity){
+    public User save(User entity){
         User user = (User) entity;
         try{
             if(!existsById(user.getId())){
@@ -49,7 +49,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public boolean existsById(Object userId) {
+    public boolean existsById(String userId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE id=?");
             stm.setString(1, (String) userId);
@@ -71,7 +71,7 @@ public class UserDAOImpl implements UserDAO {
         }
     }
     @Override
-    public void deleteById(Object userId) {
+    public void deleteById(String userId) {
 
         try {
 
@@ -88,10 +88,10 @@ public class UserDAOImpl implements UserDAO {
         }
     }
     @Override
-    public Optional<Object> findById(Object userId) {
+    public Optional<User> findById(String userId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT * FROM user WHERE id=?");
-            stm.setString(1, (String) userId);
+            stm.setString(1, userId);
             ResultSet rst = stm.executeQuery();
             if(rst.next()){
                 return  Optional.of(new User(
@@ -131,12 +131,12 @@ public class UserDAOImpl implements UserDAO {
         }
     }
     @Override
-    public List<Object> findAll() {
+    public List<User> findAll() {
 
         try {
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT * FROM user");
-            List<Object> users = new ArrayList<>();
+            List<User> users = new ArrayList<>();
             while(rst.next()){
                 users.add(new User(
                         rst.getString("id"),
