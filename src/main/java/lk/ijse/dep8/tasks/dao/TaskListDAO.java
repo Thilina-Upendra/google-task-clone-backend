@@ -18,7 +18,7 @@ public class TaskListDAO {
 
     public TaskList saveTaskList(TaskList taskList) {
         try{
-            if(!existsTaskListById(String.valueOf(taskList.getId()))){
+            if(!existsTaskListById(taskList.getId())){
                 PreparedStatement stm = connection.prepareStatement("INSERT INTO task_list ( name, user_id) VALUE (?, ?, ?)");
                 stm.setString(1, taskList.getName());
                 stm.setString(2, taskList.getUserId());
@@ -40,24 +40,24 @@ public class TaskListDAO {
         return taskList;
     }
 
-    public boolean existsTaskListById(String taskListId) {
+    public boolean existsTaskListById(int taskListId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT id FROM task_list WHERE id=?");
-            stm.setString(1, taskListId);
+            stm.setInt(1, taskListId);
             return stm.executeQuery().next();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void deleteTaskListById(String taskListId) {
+    public void deleteTaskListById(int taskListId) {
         try {
 
             if(!existsTaskListById(taskListId)){
                 throw new DataAccessException("No Task List found");
             }
             PreparedStatement stm = connection.prepareStatement("DELETE FROM task_list WHERE id=?");
-            stm.setString(1, taskListId);
+            stm.setInt(1, taskListId);
             if(stm.executeUpdate() != 1){
                 throw new SQLException("Failed to delete the Task list");
             }
@@ -66,10 +66,10 @@ public class TaskListDAO {
         }
     }
 
-    public Optional<TaskList> findTaskListById(String taskListId) {
+    public Optional<TaskList> findTaskListById(int taskListId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT * FROM task_list WHERE id=?");
-            stm.setString(1, taskListId);
+            stm.setInt(1, taskListId);
             ResultSet rst = stm.executeQuery();
             if(rst.next()){
                 return  Optional.of(new TaskList(
