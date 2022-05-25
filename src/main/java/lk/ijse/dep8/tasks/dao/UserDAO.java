@@ -18,7 +18,7 @@ public class UserDAO {
 
     public User saveUser(User user) {
         try{
-            if(!existsById(user.getId())){
+            if(!existsUserById(user.getId())){
                 PreparedStatement stm = connection.prepareStatement("INSERT INTO user (id, email, password, full_name, profile_pic) VALUE (?, ?, ?, ?, ?)");
                 stm.setString(1, user.getId());
                 stm.setString(2, user.getEmail());
@@ -45,7 +45,7 @@ public class UserDAO {
         return user;
     }
 
-    public boolean existsById(String userId) {
+    public boolean existsUserById(String userId) {
         try {
             PreparedStatement stm = connection.prepareStatement("SELECT id FROM user WHERE id=?");
             stm.setString(1, userId);
@@ -58,7 +58,7 @@ public class UserDAO {
     public void deleteUserById(String userId) {
         try {
 
-            if(!existsById(userId)){
+            if(!existsUserById(userId)){
                 throw new DataAccessException("No user found");
             }
             PreparedStatement stm = connection.prepareStatement("DELETE FROM user WHERE id=?");
