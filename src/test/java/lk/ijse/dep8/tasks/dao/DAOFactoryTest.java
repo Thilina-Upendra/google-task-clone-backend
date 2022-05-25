@@ -1,5 +1,9 @@
 package lk.ijse.dep8.tasks.dao;
 
+import lk.ijse.dep8.tasks.dao.custom.QueryDAO;
+import lk.ijse.dep8.tasks.dao.custom.TaskDAO;
+import lk.ijse.dep8.tasks.dao.custom.TaskListDAO;
+import lk.ijse.dep8.tasks.dao.custom.UserDAO;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;

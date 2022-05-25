@@ -1,6 +1,6 @@
 package lk.ijse.dep8.tasks.dao.impl;
 
-import lk.ijse.dep8.tasks.dao.QueryDAO;
+import lk.ijse.dep8.tasks.dao.custom.QueryDAO;
 
 import java.sql.Connection;
 

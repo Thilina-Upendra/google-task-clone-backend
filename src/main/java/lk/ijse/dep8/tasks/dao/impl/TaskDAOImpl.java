@@ -1,6 +1,6 @@
 package lk.ijse.dep8.tasks.dao.impl;
 
-import lk.ijse.dep8.tasks.dao.TaskDAO;
+import lk.ijse.dep8.tasks.dao.custom.TaskDAO;
 import lk.ijse.dep8.tasks.dao.exception.DataAccessException;
 import lk.ijse.dep8.tasks.entity.Task;
 

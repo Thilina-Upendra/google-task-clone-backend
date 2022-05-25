@@ -1,8 +1,7 @@
 package lk.ijse.dep8.tasks.service;
 
 import lk.ijse.dep8.tasks.dao.DAOFactory;
-import lk.ijse.dep8.tasks.dao.UserDAO;
-import lk.ijse.dep8.tasks.dao.impl.UserDAOImpl;
+import lk.ijse.dep8.tasks.dao.custom.UserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.entity.User;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
