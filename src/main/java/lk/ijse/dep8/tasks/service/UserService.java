@@ -1,5 +1,6 @@
 package lk.ijse.dep8.tasks.service;
 
+import lk.ijse.dep8.tasks.dao.DAOFactory;
 import lk.ijse.dep8.tasks.dao.UserDAO;
 import lk.ijse.dep8.tasks.dao.impl.UserDAOImpl;
 import lk.ijse.dep8.tasks.dto.UserDTO;
@@ -24,7 +25,7 @@ public class UserService {
     private  final Logger logger  = Logger.getLogger(UserService.class.getName());
 
     public  boolean existUser(Connection connection, String email) throws SQLException {
-        UserDAO userDAO = new UserDAOImpl(connection);
+        UserDAO userDAO = DAOFactory.getInstance().getUserDAO(connection);
         return userDAO.existsUserByEmailOrId(email);
     }
 
@@ -39,7 +40,7 @@ public class UserService {
             }
 
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            UserDAO userDAO = new UserDAOImpl(connection);
+            UserDAO userDAO = DAOFactory.getInstance().getUserDAO(connection);
             User userEntity = new User(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPicture());
             User savedUser = userDAO.save(userEntity);
             user = new UserDTO(savedUser.getId(), savedUser.getFullName(), savedUser.getEmail(),
@@ -73,7 +74,7 @@ public class UserService {
         try {
             connection.setAutoCommit(false);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            UserDAO userDAO = new UserDAOImpl(connection);
+            UserDAO userDAO = DAOFactory.getInstance().getUserDAO(connection);
             User userEntity = userDAO.findById(user.getId()).get();
 
             userEntity.setPassword(user.getPassword());
@@ -122,7 +123,7 @@ public class UserService {
     }
 
     public  void deleteUser(Connection connection, String userId, String appLocation) throws SQLException {
-        UserDAO userDAO = new UserDAOImpl(connection);
+        UserDAO userDAO =DAOFactory.getInstance().getUserDAO(connection);
         userDAO.deleteById(userId);
         new Thread(() -> {
             Path imagePath = Paths.get(appLocation, "uploads",
@@ -136,7 +137,7 @@ public class UserService {
     }
 
     public  UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
-        UserDAO userDAO = new UserDAOImpl(connection);
+        UserDAO userDAO = DAOFactory.getInstance().getUserDAO(connection);
         Optional<User> userWrapper = userDAO.findUserByIdOrEmail(emailOrId);
         return userWrapper.map(e->new UserDTO(e.getId(), e.getFullName(), e.getEmail(), e.getPassword(), e.getProfilePic())).orElse(null);
     }
