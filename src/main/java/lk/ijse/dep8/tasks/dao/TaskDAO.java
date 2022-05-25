@@ -2,7 +2,6 @@ package lk.ijse.dep8.tasks.dao;
 
 import lk.ijse.dep8.tasks.dao.exception.DataAccessException;
 import lk.ijse.dep8.tasks.entity.Task;
-import lk.ijse.dep8.tasks.entity.User;
 
 import java.sql.*;
 import java.util.ArrayList;

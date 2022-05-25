@@ -93,11 +93,12 @@ public class UserDAO {
     }
 
     public List<User> findAllUsers() {
-        List<User> users = new ArrayList<>();
+
         try {
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT * FROM user");
-            if(rst.next()){
+            List<User> users = new ArrayList<>();
+            while(rst.next()){
                 users.add(new User(
                         rst.getString("id"),
                         rst.getString("email"),
@@ -106,18 +107,19 @@ public class UserDAO {
                         rst.getString("profile_pic")
                 ));
             }
+            return users;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return users;
+
     }
 
     public long countUsers() {
-        Statement stm = null;
+
         try {
-            stm = connection.createStatement();
+            Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT COUNT(id) AS count FROM user");
-            if(rst.next()){
+            if (rst.next()){
                 return rst.getLong("count");
             }
             return 0;

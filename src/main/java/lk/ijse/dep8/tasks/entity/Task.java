@@ -18,5 +18,4 @@ public class Task {
     public enum Status{
         complete, needAction
     }
-
 }
