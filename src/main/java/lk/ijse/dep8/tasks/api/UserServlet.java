@@ -61,7 +61,7 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (new UserServiceImpl(connection).existUser(connection, email)) {
+            if (new UserServiceImpl(connection).existUser(email)) {
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
@@ -115,7 +115,7 @@ public class UserServlet extends HttpServlet2 {
             }
 
             UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
-            user = new UserServiceImpl(connection).registerUser(connection, picture,
+            user = new UserServiceImpl(connection).registerUser(picture,
                     getServletContext().getRealPath("/"), user);
 
             /*API layer*/
@@ -156,10 +156,10 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (!new UserServiceImpl(connection).existUser(connection, userId)) {
+            if (!new UserServiceImpl(connection).existUser(userId)) {
                 throw new ResponseStatusException(404, "Invalid user id");
             } else {
-                return new UserServiceImpl(connection).getUser(connection, userId);
+                return new UserServiceImpl(connection).getUser(userId);
             }
         } catch (Throwable e) {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
@@ -171,7 +171,7 @@ public class UserServlet extends HttpServlet2 {
         UserDTO user = getUser(req);
         try (Connection connection = pool.getConnection()) {
             String appLocation = getServletContext().getRealPath("/");
-            new UserServiceImpl(connection).deleteUser(connection, user.getId(), appLocation);
+            new UserServiceImpl(connection).deleteUser(user.getId(), appLocation);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 //            new Thread(() -> {
 //                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
@@ -233,7 +233,7 @@ public class UserServlet extends HttpServlet2 {
                     + request.getServerPort() + request.getContextPath();
                 pictureUrl += "/uploads/" + user.getId();
             }
-            new UserServiceImpl(connection).updateUser(connection, new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
+            new UserServiceImpl(connection).updateUser(new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
                     picture, getServletContext().getRealPath("/"));
 
         } catch (Throwable e) {

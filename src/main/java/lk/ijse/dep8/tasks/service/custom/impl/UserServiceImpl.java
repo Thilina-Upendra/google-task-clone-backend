@@ -5,6 +5,8 @@ import lk.ijse.dep8.tasks.dao.custom.UserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.entity.User;
 import lk.ijse.dep8.tasks.service.custom.UserService;
+import lk.ijse.dep8.tasks.service.exception.FailedExecutionException;
+import lk.ijse.dep8.tasks.service.util.ExecutionContext;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -18,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserServiceImpl implements UserService {
@@ -30,12 +33,12 @@ public class UserServiceImpl implements UserService {
 
     private  final Logger logger  = Logger.getLogger(UserServiceImpl.class.getName());
 
-    public  boolean existUser(Connection connection, String email) throws SQLException {
+    public  boolean existUser(String email) {
         UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
         return userDAO.existsUserByEmailOrId(email);
     }
 
-    public  UserDTO registerUser(Connection connection, Part picture,String appLocation, UserDTO user)throws SQLException {
+    public  UserDTO registerUser(Part picture,String appLocation, UserDTO user) {
         try{
             connection.setAutoCommit(false);
 
@@ -69,14 +72,20 @@ public class UserServiceImpl implements UserService {
             connection.commit();
             return user;
         }catch (Throwable t){
-            connection.rollback();
-            throw new RuntimeException(t);
+            ExecutionContext.execute(connection::rollback);
+            throw new FailedExecutionException("Failed to save the user");
+//            try {
+//                connection.rollback();
+//            } catch (SQLException e) {
+//                throw new FailedExecutionException("Failed to save the user", e);
+//            }
+
         }finally {
-            connection.setAutoCommit(true);
+            ExecutionContext.execute(()->connection.setAutoCommit(true));
         }
     }
 
-    public  void updateUser(Connection connection, UserDTO user, Part picture, String appLocation) throws SQLException {
+    public  void updateUser(UserDTO user, Part picture, String appLocation) {
         try {
             connection.setAutoCommit(false);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
@@ -109,8 +118,8 @@ public class UserServiceImpl implements UserService {
 
             connection.commit();
         } catch (Throwable e) {
-            connection.rollback();
-            throw new RuntimeException();
+            ExecutionContext.execute(connection::rollback);
+            throw new FailedExecutionException("Failed to update the user");
         } finally {
             try {
                 if (!connection.getAutoCommit()) {
@@ -119,16 +128,16 @@ public class UserServiceImpl implements UserService {
                 }
                 connection.close();
             }  catch (Throwable e) {
-                connection.rollback();
-                throw new RuntimeException(e);
+                ExecutionContext.execute(connection::rollback);
+                throw new FailedExecutionException("Failed to update the user");
             } finally{
-                connection.setAutoCommit(true);
+               ExecutionContext.execute(()-> connection.setAutoCommit(true));
             }
         }
 
     }
 
-    public  void deleteUser(Connection connection, String userId, String appLocation) throws SQLException {
+    public  void deleteUser(String userId, String appLocation)  {
         UserDAO userDAO =DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
         userDAO.deleteById(userId);
         new Thread(() -> {
@@ -142,7 +151,7 @@ public class UserServiceImpl implements UserService {
         }).start();
     }
 
-    public  UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
+    public  UserDTO getUser(String emailOrId)  {
         UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
         Optional<User> userWrapper = userDAO.findUserByIdOrEmail(emailOrId);
         return userWrapper.map(e->new UserDTO(e.getId(), e.getFullName(), e.getEmail(), e.getPassword(), e.getProfilePic())).orElse(null);
