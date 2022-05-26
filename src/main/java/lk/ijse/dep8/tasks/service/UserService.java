@@ -1,8 +1,9 @@
 package lk.ijse.dep8.tasks.service;
 
-import com.sun.org.apache.bcel.internal.generic.FALOAD;
-import lk.ijse.dep8.tasks.dao.UserDAO;
+import lk.ijse.dep8.tasks.dao.DAOFactory;
+import lk.ijse.dep8.tasks.dao.custom.UserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
+import lk.ijse.dep8.tasks.entity.User;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -13,9 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -24,7 +24,8 @@ public class UserService {
     private  final Logger logger  = Logger.getLogger(UserService.class.getName());
 
     public  boolean existUser(Connection connection, String email) throws SQLException {
-        return new UserDAO().existUser(connection, email);
+        UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
+        return userDAO.existsUserByEmailOrId(email);
     }
 
     public  UserDTO registerUser(Connection connection, Part picture,String appLocation, UserDTO user)throws SQLException {
@@ -36,9 +37,13 @@ public class UserService {
             if (picture != null) {
                 user.setPicture(user.getPicture()+ user.getId());
             }
-            System.out.println(user.getPassword());
+
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            UserDTO savedUser = new UserDAO().saveUser(connection, user);
+            UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
+            User userEntity = new User(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPicture());
+            User savedUser = userDAO.save(userEntity);
+            user = new UserDTO(savedUser.getId(), savedUser.getFullName(), savedUser.getEmail(),
+                    savedUser.getPassword(), savedUser.getProfilePic());
 
             if(picture != null){
                 Path path = Paths.get(appLocation, "uploads");
@@ -55,7 +60,7 @@ public class UserService {
                 }
             }
             connection.commit();
-            return savedUser;
+            return user;
         }catch (Throwable t){
             connection.rollback();
             throw new RuntimeException(t);
@@ -68,8 +73,14 @@ public class UserService {
         try {
             connection.setAutoCommit(false);
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
-            new UserDAO().updateUser(connection, user);
+            UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
+            User userEntity = userDAO.findById(user.getId()).get();
 
+            userEntity.setPassword(user.getPassword());
+            userEntity.setFullName(user.getName());
+            userEntity.setProfilePic(user.getPicture());
+
+            userDAO.save(userEntity);
 
             Path path = Paths.get(appLocation, "uploads");
             String picturePath = path.resolve(user.getId()).toAbsolutePath().toString();
@@ -111,7 +122,8 @@ public class UserService {
     }
 
     public  void deleteUser(Connection connection, String userId, String appLocation) throws SQLException {
-        new UserDAO().deleteUser(connection, userId);
+        UserDAO userDAO =DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
+        userDAO.deleteById(userId);
         new Thread(() -> {
             Path imagePath = Paths.get(appLocation, "uploads",
                     userId);
@@ -124,6 +136,8 @@ public class UserService {
     }
 
     public  UserDTO getUser(Connection connection, String emailOrId) throws SQLException {
-        return new UserDAO().getUser(connection, emailOrId);
+        UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
+        Optional<User> userWrapper = userDAO.findUserByIdOrEmail(emailOrId);
+        return userWrapper.map(e->new UserDTO(e.getId(), e.getFullName(), e.getEmail(), e.getPassword(), e.getProfilePic())).orElse(null);
     }
 }
