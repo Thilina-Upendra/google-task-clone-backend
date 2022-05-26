@@ -15,10 +15,9 @@ public class JNDIConnectionPool {
     }
 
     public DataSource getDataSource()  {
-        InitialContext initialContext = null;
         try {
-            initialContext = new InitialContext();
-            DataSource dataSource = (DataSource) initialContext.lookup("java:comp/env/dep8_tasks");
+            InitialContext initialContext = new InitialContext();
+            DataSource dataSource = (DataSource) initialContext.lookup("java:comp/env/jdbc/pool");
             return dataSource;
         } catch (NamingException e) {
             throw new FailedExecutionException("Failed to loop up the pool", e);
