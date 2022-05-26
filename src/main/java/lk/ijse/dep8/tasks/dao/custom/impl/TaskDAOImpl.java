@@ -23,7 +23,7 @@ public class TaskDAOImpl implements TaskDAO {
                 PreparedStatement stm = connection.prepareStatement("INSERT INTO task (title, details, position, status, task_list_id) VALUE (?, ?, ?, ?, ?)");
                 stm.setString(1, task.getTitle());
                 stm.setString(2, task.getDetails());
-                stm.setString(3, task.getPosition());
+                stm.setInt(3, task.getPosition());
                 stm.setString(4, task.getStatus().toString());
                 stm.setInt(5, task.getTaskListId());
                 if(stm.executeUpdate() != 1){
@@ -33,7 +33,7 @@ public class TaskDAOImpl implements TaskDAO {
                 PreparedStatement stm = connection.prepareStatement("UPDATE task SET title=?, details=?, position=?, status=?, task_list_id=? WHERE id=?");
                 stm.setString(1, task.getTitle());
                 stm.setString(2, task.getDetails());
-                stm.setString(3, task.getPosition());
+                stm.setInt(3, task.getPosition());
                 stm.setString(4, task.getStatus().toString());
                 stm.setInt(5, task.getTaskListId());
                 stm.setInt(6, task.getId());
@@ -86,7 +86,7 @@ public class TaskDAOImpl implements TaskDAO {
                         rst.getInt("id"),
                         rst.getString("title"),
                         rst.getString("details"),
-                        rst.getString("position"),
+                        rst.getInt("position"),
                         Task.Status.valueOf(rst.getString("status")),
                         rst.getInt("task_list_id")
                 ));
@@ -109,7 +109,7 @@ public class TaskDAOImpl implements TaskDAO {
                         rst.getInt("id"),
                         rst.getString("title"),
                         rst.getString("details"),
-                        rst.getString("position"),
+                        rst.getInt("position"),
                         Task.Status.valueOf(rst.getString("status")),
                         rst.getInt("task_list_id")
                 ));
