@@ -1,9 +1,10 @@
-package lk.ijse.dep8.tasks.service;
+package lk.ijse.dep8.tasks.service.custom.impl;
 
 import lk.ijse.dep8.tasks.dao.DAOFactory;
 import lk.ijse.dep8.tasks.dao.custom.UserDAO;
 import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.entity.User;
+import lk.ijse.dep8.tasks.service.custom.UserService;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -19,9 +20,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-public class UserService {
+public class UserServiceImpl implements UserService {
 
-    private  final Logger logger  = Logger.getLogger(UserService.class.getName());
+    private  final Logger logger  = Logger.getLogger(UserServiceImpl.class.getName());
 
     public  boolean existUser(Connection connection, String email) throws SQLException {
         UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);

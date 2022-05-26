@@ -2,30 +2,19 @@ package lk.ijse.dep8.tasks.api;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-import jdk.nashorn.internal.ir.CallNode;
 import lk.ijse.dep8.tasks.dto.UserDTO;
-import lk.ijse.dep8.tasks.listener.DBInitializer;
-import lk.ijse.dep8.tasks.service.UserService;
+import lk.ijse.dep8.tasks.service.custom.impl.UserServiceImpl;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
-import org.apache.commons.codec.cli.Digest;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 
@@ -72,7 +61,7 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (new UserService().existUser(connection, email)) {
+            if (new UserServiceImpl().existUser(connection, email)) {
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
@@ -126,7 +115,7 @@ public class UserServlet extends HttpServlet2 {
             }
 
             UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
-            user = new UserService().registerUser(connection, picture,
+            user = new UserServiceImpl().registerUser(connection, picture,
                     getServletContext().getRealPath("/"), user);
 
             /*API layer*/
@@ -167,10 +156,10 @@ public class UserServlet extends HttpServlet2 {
         try (Connection connection = pool.getConnection()) {
 
 
-            if (!new UserService().existUser(connection, userId)) {
+            if (!new UserServiceImpl().existUser(connection, userId)) {
                 throw new ResponseStatusException(404, "Invalid user id");
             } else {
-                return new UserService().getUser(connection, userId);
+                return new UserServiceImpl().getUser(connection, userId);
             }
         } catch (Throwable e) {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
@@ -182,7 +171,7 @@ public class UserServlet extends HttpServlet2 {
         UserDTO user = getUser(req);
         try (Connection connection = pool.getConnection()) {
             String appLocation = getServletContext().getRealPath("/");
-            new UserService().deleteUser(connection, user.getId(), appLocation);
+            new UserServiceImpl().deleteUser(connection, user.getId(), appLocation);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 //            new Thread(() -> {
 //                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
@@ -244,7 +233,7 @@ public class UserServlet extends HttpServlet2 {
                     + request.getServerPort() + request.getContextPath();
                 pictureUrl += "/uploads/" + user.getId();
             }
-            new UserService().updateUser(connection, new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
+            new UserServiceImpl().updateUser(connection, new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
                     picture, getServletContext().getRealPath("/"));
 
         } catch (Throwable e) {
