@@ -3,6 +3,10 @@ package lk.ijse.dep8.tasks.api;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import lk.ijse.dep8.tasks.dto.UserDTO;
+import lk.ijse.dep8.tasks.entity.User;
+import lk.ijse.dep8.tasks.service.ServiceFactory;
+import lk.ijse.dep8.tasks.service.SuperService;
+import lk.ijse.dep8.tasks.service.custom.UserService;
 import lk.ijse.dep8.tasks.service.custom.impl.UserServiceImpl;
 import lk.ijse.dep8.tasks.util.HttpServlet2;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
@@ -24,8 +28,8 @@ public class UserServlet extends HttpServlet2 {
 
     final Logger logger = Logger.getLogger(UserServlet.class.getName());
 
-    @Resource(name = "java:comp/env/jdbc/pool")
-    private volatile DataSource pool;
+/*    @Resource(name = "java:comp/env/jdbc/pool")
+    private volatile DataSource pool;*/
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -58,10 +62,10 @@ public class UserServlet extends HttpServlet2 {
         }
 
 
-        try (Connection connection = pool.getConnection()) {
+        try  {
 
-
-            if (new UserServiceImpl().existUser(email)) {
+            UserService userService = ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.USER);
+            if (userService.existUser(email)) {
                 throw new ResponseStatusException(HttpServletResponse.SC_CONFLICT, "A user has been already registered with this email");
             }
 
@@ -115,7 +119,7 @@ public class UserServlet extends HttpServlet2 {
             }
 
             UserDTO user = new UserDTO(null, name, email, password, pictureUrl);
-            user = new UserServiceImpl().registerUser(picture,
+            user = userService.registerUser(picture,
                     getServletContext().getRealPath("/"), user);
 
             /*API layer*/
@@ -124,7 +128,7 @@ public class UserServlet extends HttpServlet2 {
             Jsonb jsonb = JsonbBuilder.create();
             jsonb.toJson(user, response.getWriter());
 
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             throw new ResponseStatusException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to register the user");
         } finally {
 //            try {
@@ -153,13 +157,13 @@ public class UserServlet extends HttpServlet2 {
         }
 
         String userId = req.getPathInfo().replaceAll("/", "");
-        try (Connection connection = pool.getConnection()) {
+        try  {
+            UserService userService = ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.USER);
 
-
-            if (!new UserServiceImpl().existUser(userId)) {
+            if (!userService.existUser(userId)) {
                 throw new ResponseStatusException(404, "Invalid user id");
             } else {
-                return new UserServiceImpl().getUser(userId);
+                return userService.getUser(userId);
             }
         } catch (Throwable e) {
             throw new ResponseStatusException(500, "Failed to fetch the user info", e);
@@ -169,9 +173,10 @@ public class UserServlet extends HttpServlet2 {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO user = getUser(req);
-        try (Connection connection = pool.getConnection()) {
+        try  {
+            UserService userService = ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.USER);
             String appLocation = getServletContext().getRealPath("/");
-            new UserServiceImpl().deleteUser(user.getId(), appLocation);
+            userService.deleteUser(user.getId(), appLocation);
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 //            new Thread(() -> {
 //                Path imagePath = Paths.get(getServletContext().getRealPath("/"), "uploads",
@@ -182,7 +187,7 @@ public class UserServlet extends HttpServlet2 {
 //                    logger.warning("Failed to delete the image: " + imagePath.toAbsolutePath());
 //                }
 //            }).start();
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             throw new ResponseStatusException(500, e.getMessage(), e);
         }
     }
@@ -208,7 +213,7 @@ public class UserServlet extends HttpServlet2 {
         }
 
 
-        try (Connection connection = pool.getConnection()){
+        try{
 
 //            connection.setAutoCommit(false);
 //
@@ -233,7 +238,8 @@ public class UserServlet extends HttpServlet2 {
                     + request.getServerPort() + request.getContextPath();
                 pictureUrl += "/uploads/" + user.getId();
             }
-            new UserServiceImpl().updateUser(new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
+            UserService userService = ServiceFactory.getInstance().getService(ServiceFactory.ServiceType.USER);
+            userService.updateUser(new UserDTO(user.getId(), name, user.getEmail(), password, pictureUrl),
                     picture, getServletContext().getRealPath("/"));
 
         } catch (Throwable e) {
