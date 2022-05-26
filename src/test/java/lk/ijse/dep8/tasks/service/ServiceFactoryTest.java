@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.sql.Connection;
 
@@ -14,6 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ServiceFactoryTest {
+
+    @Mock
+    private Connection mockConnection;
+    private AutoCloseable autoCloseable;
+
+
 
     @RepeatedTest(2)
     void getInstance() {
@@ -24,12 +32,22 @@ class ServiceFactoryTest {
 
     @Test
     void getService() {
-        Connection mockConnection = mock(Connection.class);
+        //Connection mockConnection = mock(Connection.class);
         SuperService taskService = ServiceFactory.getInstance().getService(mockConnection, ServiceFactory.ServiceType.TASK);
         SuperService userService = ServiceFactory.getInstance().getService(mockConnection, ServiceFactory.ServiceType.USER);
         assertNotNull(taskService);
         assertNotNull(userService);
         assertTrue(userService instanceof UserServiceImpl);
         assertTrue(taskService instanceof TaskServiceImpl);
+    }
+
+    @BeforeEach
+    void setUp() {
+         autoCloseable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
     }
 }

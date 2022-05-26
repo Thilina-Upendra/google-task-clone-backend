@@ -1,4 +1,4 @@
-package lk.ijse.dep8.tasks.dao.impl;
+package lk.ijse.dep8.tasks.dao.custom.impl;
 
 import lk.ijse.dep8.tasks.dao.custom.TaskListDAO;
 import lk.ijse.dep8.tasks.dao.exception.DataAccessException;
