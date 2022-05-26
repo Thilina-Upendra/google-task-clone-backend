@@ -22,6 +22,12 @@ import java.util.logging.Logger;
 
 public class UserServiceImpl implements UserService {
 
+    private Connection connection;
+
+    public UserServiceImpl(Connection connection) {
+        this.connection = connection;
+    }
+
     private  final Logger logger  = Logger.getLogger(UserServiceImpl.class.getName());
 
     public  boolean existUser(Connection connection, String email) throws SQLException {

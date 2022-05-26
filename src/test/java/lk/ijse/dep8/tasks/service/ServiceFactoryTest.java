@@ -1,0 +1,35 @@
+package lk.ijse.dep8.tasks.service;
+
+import lk.ijse.dep8.tasks.service.custom.TaskService;
+import lk.ijse.dep8.tasks.service.custom.impl.TaskServiceImpl;
+import lk.ijse.dep8.tasks.service.custom.impl.UserServiceImpl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ServiceFactoryTest {
+
+    @RepeatedTest(2)
+    void getInstance() {
+        ServiceFactory instance1 = ServiceFactory.getInstance();
+        ServiceFactory instance2 = ServiceFactory.getInstance();
+        assertEquals(instance1, instance2);
+    }
+
+    @Test
+    void getService() {
+        Connection mockConnection = mock(Connection.class);
+        SuperService taskService = ServiceFactory.getInstance().getService(mockConnection, ServiceFactory.ServiceType.TASK);
+        SuperService userService = ServiceFactory.getInstance().getService(mockConnection, ServiceFactory.ServiceType.USER);
+        assertNotNull(taskService);
+        assertNotNull(userService);
+        assertTrue(userService instanceof UserServiceImpl);
+        assertTrue(taskService instanceof TaskServiceImpl);
+    }
+}
