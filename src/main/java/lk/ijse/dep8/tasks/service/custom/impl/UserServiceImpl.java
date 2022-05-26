@@ -6,6 +6,7 @@ import lk.ijse.dep8.tasks.dto.UserDTO;
 import lk.ijse.dep8.tasks.entity.User;
 import lk.ijse.dep8.tasks.service.custom.UserService;
 import lk.ijse.dep8.tasks.service.exception.FailedExecutionException;
+import lk.ijse.dep8.tasks.service.util.EntityDTOMapper;
 import lk.ijse.dep8.tasks.service.util.ExecutionContext;
 import lk.ijse.dep8.tasks.util.ResponseStatusException;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -49,11 +50,14 @@ public class UserServiceImpl implements UserService {
             }
 
             user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
+
             UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
-            User userEntity = new User(user.getId(), user.getEmail(), user.getPassword(), user.getName(), user.getPicture());
-            User savedUser = userDAO.save(userEntity);
-            user = new UserDTO(savedUser.getId(), savedUser.getFullName(), savedUser.getEmail(),
-                    savedUser.getPassword(), savedUser.getProfilePic());
+            /*UserDTO -> User*/
+            User userEntity = EntityDTOMapper.getUser(user);
+
+            /*After saving , User -> UserDTO*/
+            user = EntityDTOMapper.getUserDTO(userDAO.save(userEntity));
+
 
             if(picture != null){
                 Path path = Paths.get(appLocation, "uploads");
@@ -154,6 +158,8 @@ public class UserServiceImpl implements UserService {
     public  UserDTO getUser(String emailOrId)  {
         UserDAO userDAO = DAOFactory.getInstance().getDAO(connection, DAOFactory.DAOType.USER);
         Optional<User> userWrapper = userDAO.findUserByIdOrEmail(emailOrId);
-        return userWrapper.map(e->new UserDTO(e.getId(), e.getFullName(), e.getEmail(), e.getPassword(), e.getProfilePic())).orElse(null);
+        //User user = userWrapper.get();
+        return EntityDTOMapper.getUserDTO(userWrapper.orElse(null));
+//        return userWrapper.map(e->new UserDTO(e.getId(), e.getFullName(), e.getEmail(), e.getPassword(), e.getProfilePic())).orElse(null);
     }
 }
