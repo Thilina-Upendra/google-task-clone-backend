@@ -111,7 +111,6 @@ public class UserServlet extends HttpServlet2 {
 //            }
 //            connection.commit();
 
-
             String pictureUrl = null;
             if (picture != null) {
                 pictureUrl = request.getScheme() + "://" + request.getServerName() + ":"
